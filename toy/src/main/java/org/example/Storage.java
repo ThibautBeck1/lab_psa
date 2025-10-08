@@ -1,18 +1,18 @@
 // src/main/java/org/example/Storage.java
 package org.example;
 
-public class StorageSection {
+public class Storage {
     public int id, x, y;
     public int width;
     public int height;
 
-    public StorageSection(int id, int x, int y) { // Constructor takes a Point
+    public Storage(int id, int x, int y) { // Constructor takes a Point
         this.id = id;
         this.x = x;
         this.y = y;
         width = 2;
         height = 4;
-
+        System.out.println("Storage " + id + " " + x + " " + y + " " + width + " " + height);
     }
 
     // Getters

@@ -1,8 +1,8 @@
 package org.example;
 
-public class CarrierSection {
+public class Carrier {
     public int id, craneID, x, y, width, height, orientation;
-    public CarrierSection(int id, int craneID, int x, int y){
+    public Carrier(int id, int craneID, int x, int y){
         this.id = id;
         this.craneID = id;
         this.x = x;
@@ -10,6 +10,7 @@ public class CarrierSection {
         width = 4;
         height = 8;
         orientation = 0;
+        System.out.println("Carrier " + id + " has been created." + id + " " + craneID + " " + x + " " + y);
     }
     public void rotate(){
         width = 8;
