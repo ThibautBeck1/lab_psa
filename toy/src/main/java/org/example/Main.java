@@ -4,7 +4,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    static void main() throws IOException {
         // Parse the input file
         ParsedData data;
         try (InputStream is = Main.class.getResourceAsStream("/toy.txt");

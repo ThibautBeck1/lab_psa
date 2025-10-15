@@ -4,17 +4,21 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.*;
 
-public class ParseClass  {
+public class ParseClass {
     public static ParsedData Parse(BufferedReader br) throws IOException {
         String line;
         String section = "";
         int mapWidth = 0, mapHeight = 0;
 
-        List<Crane> cranes = new ArrayList<>();
-        List<Storage> storage = new ArrayList<>();
-        List<Carrier> carriers = new ArrayList<>();
-        List<Container> containers = new ArrayList<>();
-        List<Demand> demands = new ArrayList<>();
+        // Use HashMap for O(1) lookup by ID
+        Map<Integer, Crane> cranes = new HashMap<>();
+        Map<Integer, Storage> storage = new HashMap<>();
+        Map<Integer, Carrier> carriers = new HashMap<>();
+        Map<Integer, Container> containers = new HashMap<>();
+        Map<Integer, Demand> demands = new HashMap<>();
+
+        Queue<Integer> expectedShipIds = new LinkedList<>();
+
 
         int numberOfCranes = 0;
         boolean readingCraneData = false;
@@ -75,11 +79,13 @@ public class ParseClass  {
                                     );
                                 }
                             }
-                            cranes.add(new Crane(
-                                    numbers.get(0), numbers.get(1), numbers.get(2),
+                            int craneId = numbers.get(0);
+                            Crane crane = new Crane(
+                                    craneId, numbers.get(1), numbers.get(2),
                                     numbers.get(3), numbers.get(4), numbers.get(5),
                                     dispatchSections
-                            ));
+                            );
+                            cranes.put(craneId, crane);
                         }
                         scanner.close();
                     }
@@ -91,9 +97,11 @@ public class ParseClass  {
                             numbers.add(scanner.nextInt());
                         }
                         if (numbers.size() >= 3) {
-                            storage.add(new Storage(
-                                    numbers.get(0), numbers.get(1), numbers.get(2)
-                            ));
+                            int storageId = numbers.get(0);
+                            Storage storageObj = new Storage(
+                                    storageId, numbers.get(1), numbers.get(2)
+                            );
+                            storage.put(storageId, storageObj);
                         }
                         scanner.close();
                     }
@@ -105,10 +113,12 @@ public class ParseClass  {
                             numbers.add(scanner.nextInt());
                         }
                         if (numbers.size() >= 4) {
-                            carriers.add(new Carrier(
-                                    numbers.get(0), numbers.get(1),
+                            int carrierId = numbers.get(0);
+                            Carrier carrier = new Carrier(
+                                    carrierId, numbers.get(1),
                                     numbers.get(2), numbers.get(3)
-                            ));
+                            );
+                            carriers.put(carrierId, carrier);
                         }
                         scanner.close();
                     }
@@ -120,70 +130,73 @@ public class ParseClass  {
                             numbers.add(scanner.nextInt());
                         }
                         if (numbers.size() >= 2) {
-                            containers.add(new Container(
-                                    numbers.get(0), numbers.get(1)
-                            ));
+                            int containerId = numbers.get(0);
+                            Container container = new Container(
+                                    containerId, numbers.get(1)
+                            );
+                            containers.put(containerId, container);
                         }
                         scanner.close();
                     }
 
                     case "demand" -> {
                         if (line.startsWith("demand crane")) {
-                            // Parse "demand crane 0"
                             String[] parts = line.split("\\s+");
                             int craneId = Integer.parseInt(parts[2]);
                             currentDemand = new Demand(craneId);
-                            demands.add(currentDemand);
+                            demands.put(craneId, currentDemand);
+                            expectedShipIds.clear(); // A new crane demand resets the ship queue
                         } else if (line.startsWith("ship")) {
-                            // Parse "ship 0"
                             String[] parts = line.split("\\s+");
                             int shipId = Integer.parseInt(parts[1]);
+
+                            // Optional but recommended: Validate this ship was expected
+                            if (!expectedShipIds.isEmpty() && expectedShipIds.peek() == shipId) {
+                                expectedShipIds.poll(); // Acknowledge and remove from queue
+                            }
+
                             currentShip = new Ship(shipId);
                             if (currentDemand != null) {
                                 currentDemand.addShip(currentShip);
                             }
                             operationsRead = 0;
+                            expectedOperations = 0;
                         } else if (line.startsWith("unload")) {
-                            // Parse "unload 0 3 0"
                             String[] parts = line.split("\\s+");
                             int dischargeId = Integer.parseInt(parts[1]);
                             int containerId = Integer.parseInt(parts[2]);
                             int storageId = Integer.parseInt(parts[3]);
-                            UnloadOperation op = new UnloadOperation(
-                                    dischargeId, containerId, storageId
-                            );
+                            UnloadOperation op = new UnloadOperation(dischargeId, containerId, storageId);
                             if (currentShip != null) {
                                 currentShip.addOperation(op);
                                 operationsRead++;
                             }
                         } else if (line.startsWith("load")) {
-                            // Parse "load 0 2"
                             String[] parts = line.split("\\s+");
                             int dischargeId = Integer.parseInt(parts[1]);
                             int containerId = Integer.parseInt(parts[2]);
-                            LoadOperation op = new LoadOperation(
-                                    dischargeId, containerId
-                            );
+                            LoadOperation op = new LoadOperation(dischargeId, containerId);
                             if (currentShip != null) {
                                 currentShip.addOperation(op);
                                 operationsRead++;
                             }
                         } else {
-                            // Parse number of containers or operations
+                            // This block handles numeric lines: total containers, ship manifests, and operation counts
                             Scanner scanner = new Scanner(line.split("%")[0]);
                             if (scanner.hasNextInt()) {
                                 int value = scanner.nextInt();
-                                if (totalNewContainers == 0 && currentDemand == null) {
+                                if (totalNewContainers == 0 && demands.isEmpty()) {
+                                    // First number in the section is the total new containers
                                     totalNewContainers = value;
-                                } else if (currentShip != null && expectedOperations == 0) {
-                                    expectedOperations = value;
-                                } else {
-                                    // Ship count line: "1 0" means 1 ship with id 0
-                                    ArrayList<Integer> shipIds = new ArrayList<>();
-                                    shipIds.add(value);
+                                } else if (currentDemand != null && expectedShipIds.isEmpty()) {
+                                    // This is the ship manifest line (e.g., "2 0 1")
+                                    // 'value' holds the count (2), and the scanner has the IDs (0, 1)
                                     while (scanner.hasNextInt()) {
-                                        shipIds.add(scanner.nextInt());
+                                        expectedShipIds.add(scanner.nextInt());
                                     }
+                                } else if (currentShip != null && expectedOperations == 0) {
+                                    // This is the number of operations for the current ship
+                                    expectedOperations = value;
                                 }
                             }
                             scanner.close();
@@ -197,15 +210,14 @@ public class ParseClass  {
         ParsedData data = new ParsedData();
         data.mapWidth = mapWidth;
         data.mapHeight = mapHeight;
-        data.cranes = cranes;
-        data.storage = storage;
-        data.carriers = carriers;
-        data.containers = containers;
-        data.demands = demands;
+        // Convert HashMap values to ArrayList if ParsedData expects lists
+        data.cranes = new ArrayList<>(cranes.values());
+        data.storage = new ArrayList<>(storage.values());
+        data.carriers = new ArrayList<>(carriers.values());
+        data.containers = new ArrayList<>(containers.values());
+        data.demands = new ArrayList<>(demands.values());
         data.totalNewContainers = totalNewContainers;
 
         return data;
     }
-
 }
-
