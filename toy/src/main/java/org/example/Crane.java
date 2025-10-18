@@ -14,7 +14,7 @@ public class Crane {
         this.bottomLeftY = bottom_left_y;
         this.topRightX = top_right_x;
         this.topRightY = top_right_y;
-        System.out.println("Crane created");
+
 
     }
 

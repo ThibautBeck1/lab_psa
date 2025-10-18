@@ -29,20 +29,15 @@ public class ParseClass {
         Ship currentShip = null;
         int expectedOperations = 0;
         int operationsRead = 0;
-
+        String[] parts = br.readLine().split("\\s+");
+        mapWidth = Integer.parseInt(parts[0]);
+        mapHeight = Integer.parseInt(parts[1]);
         while ((line = br.readLine()) != null) {
             line = line.trim();
             if (line.isEmpty() || line.startsWith("%")) {
                 continue;
             }
-
-            // Header lines
-            if (line.contains("size of the map")) {
-                String[] parts = line.split("\\s+");
-                mapWidth = Integer.parseInt(parts[0]);
-                mapHeight = Integer.parseInt(parts[1]);
-                section = "";
-            } else if (line.startsWith("crane section")) {
+            if (line.startsWith("crane section")) {
                 section = "crane";
                 readingCraneData = false;
             } else if (line.startsWith("storage section")) {
@@ -141,13 +136,13 @@ public class ParseClass {
 
                     case "demand" -> {
                         if (line.startsWith("demand crane")) {
-                            String[] parts = line.split("\\s+");
+                            parts = line.split("\\s+");
                             int craneId = Integer.parseInt(parts[2]);
                             currentDemand = new Demand(craneId);
                             demands.put(craneId, currentDemand);
                             expectedShipIds.clear(); // A new crane demand resets the ship queue
                         } else if (line.startsWith("ship")) {
-                            String[] parts = line.split("\\s+");
+                           parts = line.split("\\s+");
                             int shipId = Integer.parseInt(parts[1]);
 
                             // Optional but recommended: Validate this ship was expected
@@ -162,7 +157,7 @@ public class ParseClass {
                             operationsRead = 0;
                             expectedOperations = 0;
                         } else if (line.startsWith("unload")) {
-                            String[] parts = line.split("\\s+");
+                            parts = line.split("\\s+");
                             int dischargeId = Integer.parseInt(parts[1]);
                             int containerId = Integer.parseInt(parts[2]);
                             int storageId = Integer.parseInt(parts[3]);
@@ -172,7 +167,7 @@ public class ParseClass {
                                 operationsRead++;
                             }
                         } else if (line.startsWith("load")) {
-                            String[] parts = line.split("\\s+");
+                            parts = line.split("\\s+");
                             int dischargeId = Integer.parseInt(parts[1]);
                             int containerId = Integer.parseInt(parts[2]);
                             LoadOperation op = new LoadOperation(dischargeId, containerId);

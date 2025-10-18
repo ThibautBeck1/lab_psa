@@ -12,7 +12,6 @@ public class Storage {
         this.y = y;
         width = 2;
         height = 4;
-        System.out.println("Storage " + id + " " + x + " " + y + " " + width + " " + height);
     }
 
     // Getters

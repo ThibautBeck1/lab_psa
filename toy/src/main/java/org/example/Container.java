@@ -7,7 +7,6 @@ public class Container {
         this.storageID = storageID;
         width = 2;
         height = 4;
-        System.out.println("Carrier " + id + " has been created " + id + " " + storageID );
 
     }
 

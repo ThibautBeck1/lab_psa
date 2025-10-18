@@ -10,7 +10,6 @@ public class Carrier {
         width = 4;
         height = 8;
         orientation = 0;
-        System.out.println("Carrier " + id + " has been created." + id + " " + craneID + " " + x + " " + y);
     }
     public void rotate(){
         width = 8;
