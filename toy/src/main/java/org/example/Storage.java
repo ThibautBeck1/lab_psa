@@ -3,18 +3,15 @@ package org.example;
 
 public class Storage {
     public int id, x, y;
-    public int width;
-    public int height;
+
 
     public Storage(int id, int x, int y) { // Constructor takes a Point
         this.id = id;
         this.x = x;
         this.y = y;
-        width = 2;
-        height = 4;
+     // hier niet de breedte van de storage opslaan voor mem eff
     }
 
-    // Getters
 
 
     // Optional: toString for easy printing
@@ -23,7 +20,7 @@ public class Storage {
         return "Storage{" +
                 "id=" + id +
                 ", bottomLeft=" + x + ',' + y  +
-                ", dimensions=" + width + "x" + height +
+                ", dimensions=" + 2+ "x" + 4 +
                 '}';
     }
 }

@@ -10,12 +10,11 @@ public class ParseClass {
         String section = "";
         int mapWidth = 0, mapHeight = 0;
 
-        // Use HashMap for O(1) lookup by ID
-        Map<Integer, Crane> cranes = new HashMap<>();
-        Map<Integer, Storage> storage = new HashMap<>();
-        Map<Integer, Carrier> carriers = new HashMap<>();
-        Map<Integer, Container> containers = new HashMap<>();
-        Map<Integer, Demand> demands = new HashMap<>();
+        ArrayList< Crane> cranes = new ArrayList<>();
+        ArrayList< Storage> storage = new ArrayList<>();
+        ArrayList <  Carrier> carriers = new ArrayList<>();
+        ArrayList <Container> containers = null;
+        ArrayList< Demand> demands = new ArrayList<>();
 
         Queue<Integer> expectedShipIds = new LinkedList<>();
 
@@ -46,6 +45,9 @@ public class ParseClass {
                 section = "carrier";
             } else if (line.startsWith("container section")) {
                 section = "container";
+                int n = storage.size() * 2;        // two slots per storage place
+                containers = new ArrayList<>(n);
+                for (int i = 0; i < n; i++) containers.add(null); // <-- important
             } else if (line.startsWith("demand section")) {
                 section = "demand";
             } else {
@@ -80,7 +82,7 @@ public class ParseClass {
                                     numbers.get(3), numbers.get(4), numbers.get(5),
                                     dispatchSections
                             );
-                            cranes.put(craneId, crane);
+                            cranes.add(crane);
                         }
                         scanner.close();
                     }
@@ -96,9 +98,11 @@ public class ParseClass {
                             Storage storageObj = new Storage(
                                     storageId, numbers.get(1), numbers.get(2)
                             );
-                            storage.put(storageId, storageObj);
+                            storage.add(storageObj);
                         }
                         scanner.close();
+
+
                     }
 
                     case "carrier" -> {
@@ -113,12 +117,22 @@ public class ParseClass {
                                     carrierId, numbers.get(1),
                                     numbers.get(2), numbers.get(3)
                             );
-                            carriers.put(carrierId, carrier);
+                            carriers.add( carrier);
                         }
                         scanner.close();
                     }
 
                     case "container" -> {
+                        /**
+                         *
+                         * Hoe opslag containers
+                         * dus we hebben plaatsen waar 2 containers kunnen staan
+                         * array beste plaatsbesparing -> [ plaats 0 :cont 1 , plaats 0 :cont 2,  plaats 1 :cont 1 , plaats 1 :cont 2 , ...]
+                         * -> 0,1 voor 0 ;2,3 voor 1; 4.5 voor 2 ; 6,7 voor 3
+                         * container plaats *2 is de eerste container plaats *2+1 voor 2 de container (zoals een binaire complete boom
+                         *
+                         */
+
                         Scanner scanner = new Scanner(line.split("%")[0]);
                         ArrayList<Integer> numbers = new ArrayList<>();
                         while (scanner.hasNextInt()) {
@@ -126,10 +140,13 @@ public class ParseClass {
                         }
                         if (numbers.size() >= 2) {
                             int containerId = numbers.get(0);
+                            int locationId = numbers.get(1);
                             Container container = new Container(
-                                    containerId, numbers.get(1)
+                                    containerId, locationId
                             );
-                            containers.put(containerId, container);
+                            if (containers.get(locationId*2)  == null)
+                                containers.set(locationId*2,container);
+                            else containers.set(locationId*2 +1,container);
                         }
                         scanner.close();
                     }
@@ -139,7 +156,7 @@ public class ParseClass {
                             parts = line.split("\\s+");
                             int craneId = Integer.parseInt(parts[2]);
                             currentDemand = new Demand(craneId);
-                            demands.put(craneId, currentDemand);
+                            demands.add( currentDemand);
                             expectedShipIds.clear(); // A new crane demand resets the ship queue
                         } else if (line.startsWith("ship")) {
                            parts = line.split("\\s+");
@@ -206,11 +223,11 @@ public class ParseClass {
         data.mapWidth = mapWidth;
         data.mapHeight = mapHeight;
         // Convert HashMap values to ArrayList if ParsedData expects lists
-        data.cranes = new ArrayList<>(cranes.values());
-        data.storage = new ArrayList<>(storage.values());
-        data.carriers = new ArrayList<>(carriers.values());
-        data.containers = new ArrayList<>(containers.values());
-        data.demands = new ArrayList<>(demands.values());
+        data.cranes = cranes;
+        data.storage = storage;
+        data.carriers = carriers;
+        data.containers = containers;
+        data.demands = demands;
         data.totalNewContainers = totalNewContainers;
 
         return data;
