@@ -9,7 +9,9 @@ import java.util.ArrayList;
  *
  *
  * wanneer mogen roteren -> roteren mag pas vanaf we uit de rijen rijden
- *
+ * dus kijken naar laagst mogelijke beginblok van de storagesection
+ * in toy data onderste punt van de storage section = 40
+ * dit is ook in Constants.loweststorageY
  */
 public class Carrier {
     public int id, craneID, x, y, width, height , direction;

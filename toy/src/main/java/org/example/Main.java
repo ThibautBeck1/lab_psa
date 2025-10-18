@@ -10,7 +10,6 @@ public class Main {
     static void main() throws IOException {
         // Parse the input file
         ParsedData data;
-        Constants constants = new Constants();
         try (InputStream is = Main.class.getResourceAsStream("/toy.txt");
              BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             data = ParseClass.Parse(br);
@@ -42,6 +41,7 @@ public class Main {
            System.out.println(container);
        }
 
+       System.out.println("lowest storage y " +  Constants.lowestStorageY);
 
 
 

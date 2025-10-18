@@ -99,6 +99,7 @@ public class ParseClass {
                                     storageId, numbers.get(1), numbers.get(2)
                             );
                             storage.add(storageObj);
+                            if (numbers.get(2) < Constants.lowestStorageY) { Constants.lowestStorageY = numbers.get(2); }
                         }
                         scanner.close();
 
