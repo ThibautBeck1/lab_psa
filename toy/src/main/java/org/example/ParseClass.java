@@ -142,7 +142,7 @@ public class ParseClass {
                             int containerId = numbers.get(0);
                             int locationId = numbers.get(1);
                             Container container = new Container(
-                                    containerId, locationId
+                                    containerId, locationId ,storage
                             );
                             if (containers.get(locationId*2)  == null)
                                 containers.set(locationId*2,container);

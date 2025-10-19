@@ -29,12 +29,17 @@ public class Carrier {
     }
     public void pickupContainer(Container container){
         if (this.container != null)System.out.println(this.id + "already has a container");
-
-        if (this.container == null) {
+        //checken of the carrier can pickup the container
+        //upwards downwards position
+        else if (direction %2 != 0 && container.getX()  ==this.x +1 &&  container.getY() ==this.y +2) {
             this.container = container;
             System.out.println(this.id + " picked up container " + this.container);
         }
-
+        // horizontal pos , checking if the x of the container is 2 higher and the y is 1 higher
+        else if (direction %2 == 0 && container.getX()  ==this.x +2 &&  container.getY() ==this.y +1) {
+            this.container = container;
+            System.out.println(this.id + " picked up container " + this.container);
+        }
 
     }
 
