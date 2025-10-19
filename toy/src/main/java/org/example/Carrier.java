@@ -15,7 +15,7 @@ import java.util.ArrayList;
  */
 public class Carrier {
     public int id, craneID, x, y, width, height , direction;
-
+    public Container container;
 
     public ArrayList<Log> logs = new ArrayList<>();
     public Carrier(int id, int craneID, int x, int y){
@@ -27,6 +27,17 @@ public class Carrier {
         this.height = 8;
         this.direction = 1;
     }
+    public void pickupContainer(Container container){
+        if (this.container != null)System.out.println(this.id + "already has a container");
+
+        if (this.container == null) {
+            this.container = container;
+            System.out.println(this.id + " picked up container " + this.container);
+        }
+
+
+    }
+
     public void rotate(int dir , int time) {
         if (this.direction == dir) System.out.println(" je kan geen nul graden roteren");
         else if (this.direction %2 == dir%2) System.out.println("Dit kan niet , 180 graden omdraaien carrier kan niet");

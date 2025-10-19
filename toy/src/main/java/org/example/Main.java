@@ -1,29 +1,27 @@
 package org.example;
 
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 
 public class Main {
 
     static void main() throws IOException {
         // Parse the input file
-        ParsedData data;
+        Data data;
         try (InputStream is = Main.class.getResourceAsStream("/toy.txt");
              BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-            data = ParseClass.Parse(br);
+            ParseClass.Parse(br);
         }
 
         // Print parsed data for verification
         System.out.println("Parsed successfully!");
-        System.out.println("Map: " + data.mapWidth + "x" + data.mapHeight);
-        System.out.println("Cranes: " + data.cranes.size());
-        System.out.println("Carriers: " + data.carriers.size());
-        System.out.println("Containers: " + data.containers.size());
+        System.out.println("Map: " + Data.mapWidth + "x" + Data.mapHeight);
+        System.out.println("Cranes: " + Data.cranes.size());
+        System.out.println("Carriers: " + Data.carriers.size());
+        System.out.println("Containers: " + Data.containers.size());
 
         // Display demands
-        for (Demand demand : data.demands) {
+        for (Demand demand : Data.demands) {
             System.out.println("\nDemand for Crane " + demand.getCraneId());
             for (Ship ship : demand.getShips()) {
                 System.out.println("  Ship " + ship.getId() + " operations:");
@@ -37,7 +35,7 @@ public class Main {
         System.out.println("print out all the containers");
         System.out.println("------------------------");
 
-       for (Container container : data.containers) {
+       for (Container container : Data.containers) {
            System.out.println(container);
        }
 

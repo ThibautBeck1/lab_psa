@@ -5,17 +5,16 @@ import java.io.IOException;
 import java.util.*;
 
 public class ParseClass {
-    public static ParsedData Parse(BufferedReader br) throws IOException {
+    public static void Parse(BufferedReader br) throws IOException {
         String line;
         String section = "";
         int mapWidth = 0, mapHeight = 0;
 
-        ArrayList< Crane> cranes = new ArrayList<>();
-        ArrayList< Storage> storage = new ArrayList<>();
-        ArrayList <  Carrier> carriers = new ArrayList<>();
-        ArrayList <Container> containers = null;
-        ArrayList< Demand> demands = new ArrayList<>();
-
+        List<Crane> cranes = new ArrayList<>();
+        List<Storage> storage = new ArrayList<>();
+        List<Carrier> carriers = new ArrayList<>();
+        List<Container> containers = null; // wordt gezet bij "container section"
+        List<Demand> demands = new ArrayList<>();
         Queue<Integer> expectedShipIds = new LinkedList<>();
 
 
@@ -220,17 +219,14 @@ public class ParseClass {
         }
 
         // Create and return parsed data
-        ParsedData data = new ParsedData();
-        data.mapWidth = mapWidth;
-        data.mapHeight = mapHeight;
-        // Convert HashMap values to ArrayList if ParsedData expects lists
-        data.cranes = cranes;
-        data.storage = storage;
-        data.carriers = carriers;
-        data.containers = containers;
-        data.demands = demands;
-        data.totalNewContainers = totalNewContainers;
 
-        return data;
+        Data.mapWidth = mapWidth;
+        Data.mapHeight = mapHeight;
+        Data.cranes.addAll(cranes);
+        Data.storage.addAll(storage);
+        Data.carriers.addAll(carriers);
+        if (containers != null) Data.containers.addAll(containers);
+        Data.demands.addAll(demands);
+        Data.totalNewContainers = totalNewContainers;
     }
 }
