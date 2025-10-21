@@ -19,10 +19,14 @@ public class Container {
     }
 
     public int getX(){
-        return storage.x;
+        if (this.storage != null)
+                return storage.x;
+        return -1;
     }
     public int getY(){
+        if (this.storage != null)
         return storage.y;
+        return -1;
     }
     // mag denkik niet zo , je moet eest de conainer verzetten
     public void changeStorage(int storageID, Storage storage){

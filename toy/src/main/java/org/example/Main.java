@@ -28,6 +28,7 @@ public class Main {
         System.out.println("Map: " + Data.mapWidth + "x" + Data.mapHeight);
         System.out.println("Cranes: " + Data.cranes.size());
         System.out.println("Carriers: " + Data.carriers.size());
+        System.out.println("storage size " +   Data.storage.size());
         System.out.println("Containerplaatsen " + Data.containersInField.size());
 
         // de carriers toevoegen aan hun crane
@@ -39,7 +40,9 @@ public class Main {
          }
         int t = 0;
         // demands and solution
-        // l
+        for (Storage s: Data.storage) {
+            System.out.println("storage " + s);
+        }
         for (Demand demand : Data.demands) {
             System.out.println("\nDemand for Crane " + demand.getCraneId());
             Crane crane = Data.cranes.get(demand.getCraneId());
