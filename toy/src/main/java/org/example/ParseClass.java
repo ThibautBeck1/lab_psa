@@ -225,7 +225,7 @@ public class ParseClass {
         Data.cranes.addAll(cranes);
         Data.storage.addAll(storage);
         Data.carriers.addAll(carriers);
-        if (containers != null) Data.containers.addAll(containers);
+        if (containers != null) Data.containersInField.addAll(containers);
         Data.demands.addAll(demands);
         Data.totalNewContainers = totalNewContainers;
     }

@@ -40,20 +40,21 @@ public class Carrier {
             this.container = container;
             System.out.println(this.id + " picked up container " + this.container);
         }
-
     }
+
 
     public void rotate(int dir , int time) {
         if (this.direction == dir) System.out.println(" je kan geen nul graden roteren");
-        else if (this.direction %2 == dir%2) System.out.println("Dit kan niet , 180 graden omdraaien carrier kan niet");
-        else if (this.direction %2 == 0) { // rechts, links -> boven/beneden
+        else if (this.direction % 2 == dir % 2)
+            System.out.println("Dit kan niet , 180 graden omdraaien carrier kan niet");
+        else if (this.direction % 2 == 0) { // rechts, links -> boven/beneden
             width = 4;
             height = 8;
             this.direction = dir;
             // doordat we verdraaien veranderd ons onderste punt ook
             this.x += 2;
             this.y -= 2;
-            logs.add(new RotateLog(time , dir));
+            logs.add(new RotateLog(time, dir));
 
         } else { // boven, beneden -> rechts links
             width = 8;
@@ -62,10 +63,19 @@ public class Carrier {
             // doordat we verdraaien veranderd ons onderste punt ook
             this.x -= 2;
             this.y += 2;
-            logs.add(new RotateLog(time , dir));
+            logs.add(new RotateLog(time, dir));
+        }
+    }
+        public int driveTo(int x ,int y ,int t, boolean verticalDestination){
+
+            return t;
+
+        }
+        public void dropOff(Storage storage){
+
         }
 
-    }
+
 }
 
 enum Act {

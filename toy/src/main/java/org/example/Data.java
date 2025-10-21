@@ -12,7 +12,7 @@ public final class Data {
     public static List<Crane> cranes = new ArrayList<>();
     public static List<Storage> storage = new ArrayList<>();
     public static List<Carrier> carriers = new ArrayList<>();
-    public static List<Container> containers = new ArrayList<>();
+    public static List<Container> containersInField = new ArrayList<>();
     public static List<Demand> demands = new ArrayList<>();
     public static int totalNewContainers;
 
@@ -20,7 +20,7 @@ public final class Data {
     public static void reset() {
         mapWidth = 0; mapHeight = 0; totalNewContainers = 0;
         cranes.clear(); storage.clear(); carriers.clear();
-        containers.clear(); demands.clear();
+        containersInField.clear(); demands.clear();
     }
 
     public static String summary() {
@@ -29,7 +29,7 @@ public final class Data {
                         "Containers: %d, Demands: %d, New Containers: %d",
                 mapWidth, mapHeight,
                 cranes.size(), storage.size(), carriers.size(),
-                containers.size(), demands.size(), totalNewContainers
+                containersInField.size(), demands.size(), totalNewContainers
         );
     }
 }

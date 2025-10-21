@@ -4,13 +4,18 @@ import java.util.List;
 
 public class Container {
     public int id, storageID;
-    Storage storage = null;
+    Storage storage ;
     public Container(int id, int storageID , List<Storage> storages){
         this.id = id;
         this.storageID = storageID;
         this.storage = storages.get(storageID); // imediately setting all the storages
         // withh en height niet voor alles opslaan , kan algemeen , mem efficiency
 
+    }
+    public Container(int id ) {
+        this.id = id;
+        this.storageID = -1;
+        this.storage = null;
     }
 
     public int getX(){
@@ -19,6 +24,7 @@ public class Container {
     public int getY(){
         return storage.y;
     }
+    // mag denkik niet zo , je moet eest de conainer verzetten
     public void changeStorage(int storageID, Storage storage){
         if (this.storageID != storageID){
             System.out.println("you save the incorrect storage id with the incorrect storage ");
