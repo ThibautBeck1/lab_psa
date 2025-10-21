@@ -31,6 +31,11 @@ public class Main {
         System.out.println("storage size " +   Data.storage.size());
         System.out.println("Containerplaatsen " + Data.containersInField.size());
 
+
+        Grid.initstatic();
+        System.out.println("------------------");
+        Grid.demoInitRingAndSeed();
+
         // de carriers toevoegen aan hun crane
         for (Crane c: Data.cranes) {
             for (Carrier ca : Data.carriers) {
