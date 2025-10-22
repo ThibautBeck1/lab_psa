@@ -34,7 +34,7 @@ public class Main {
 
 
         System.out.println("------------------");
-        Grid.demoInitRingAndSeed();
+
 
 
         // de carriers toevoegen aan hun crane
@@ -44,7 +44,11 @@ public class Main {
                     c.availableCarriers.add(ca);
             }
          }
-        int t = 0;
+        int time = 0;
+        int hor = 100;
+        Grid.initstatic();
+        Grid.initRingBuffer(hor, time);
+
         // demands and solution
         for (Storage s: Data.storage) {
             System.out.println("storage " + s);
@@ -66,12 +70,12 @@ public class Main {
                         Carrier carrier = crane.availableCarriers.removeFirst();
                         DispatchSection d = crane.getDispatchSections(op.getDischargeId());
 
-                        t = carrier.driveTo(d.getX() ,d.getY() ,t, false);
+                        time = carrier.driveTo(d.getX() ,d.getY() ,time, false);
                         // drive to crane
                         // pickup
                         carrier.pickupContainer(new Container(((UnloadOperation) op).getContainerId()));
                         // drive to storage
-                        t = carrier.driveTo(storage.x +2,storage.y -2 ,t , true);
+                        time = carrier.driveTo(storage.x +1,storage.y -2 ,time , true);
 
                         // drop off
                         carrier.dropOffInStorage(storage);
@@ -88,6 +92,7 @@ public class Main {
                         // drive to crane
                         // drop off
                         // go in a list of availlable carriers
+
 
                     }
                 }

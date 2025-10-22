@@ -187,35 +187,7 @@ public class Grid {
         }
     }
 
-    /* ---------- Demo ---------- */
-    public static void demoInitRingAndSeed() {
-        int hor = 100;
-        int now= 0;
-        initstatic();
-        initRingBuffer(hor, now);
-        clearSlice(now);
 
-        // Carrier richting voldoet aan gevraagd van Carrier.java
-        int dir = 4; // 1 = up
-        Carrier carrier = Data.carriers.getFirst();
-
-        if (!tryOccupyRectAt(now, carrier.x, carrier.y, carrier.direction)) {
-            System.out.printf("⚠️  rect past niet op t=%d op (%d,%d) dir=%d%n", now, carrier.x, carrier.y, carrier.direction);
-        }
-        System.out.println("this is basicly with the carrier");
-        printCombinedSlice(now);
-
-        clearSlice(now +1);
-
-        printCombinedSlice(now +1+ hor);
-        System.out.println(tryRotate(0, 5, 65, 1));
-
-
-
-
-
-
-    }
     // --- VERVANG printSlice(...) door dit: ---
     /** Debug/visualisatie van één slice: COMBINED (static + dynamic) */
     public static void printCombinedSlice(int t) {
