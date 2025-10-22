@@ -73,31 +73,101 @@ public class Carrier {
             logs.add(new RotateLog(time, dir));
         }
     }
-        public int driveTo(int x ,int y ,int t, boolean verticalDestination){
+    public int driveTo(int desX, int desY, int t, boolean verticalDestination) {
+        // Step 1: Move in current direction until aligned for rotation
+        while (!canRotateHere(t)) {
+            Grid.printCombinedSlice(t);
+            if (direction == 1 || direction == 3) { // Up/Down
+                int dy = (desY > y) ? 1 : -1;
+                if (Grid.testForCarrier(t+1, x, y+dy, direction)) {
+                    y += dy;
+                    t++;
+                    Grid.occupyCarrier(t, x, y, direction);
+                    logs.add(new moveLog(t, dy));
 
-            return t;
-
-        }
-        public void dropOffInStorage(Storage storage){
-            if (this.container == null){
-                System.out.println("je kan geen container afzetten als je er geen hebt");
+                } else {
+                    // Blocked, try alternative or break
+                    t++;
+                }
+            } else { // Right/Left
+                int dx = (desX > x) ? 1 : -1;
+                if (Grid.testForCarrier(t+1, x+dx, y, direction)) {
+                    x += dx;
+                    t++;
+                    Grid.occupyCarrier(t, x, y, direction);
+                    logs.add(new moveLog(t, dx));
+                } else {
+                    // Blocked, try alternative or break
+                    t++;
+                }
             }
-            else{
-                if (Data.containersInField.get(storage.id*2) ==null){
-                    Data.containersInField.set(storage.id*2, this.container);
-                }else if (Data.containersInField.get(storage.id*2 +1) ==null){
-                    Data.containersInField.set(storage.id*2+1, this.container);
-                } else System.out.println("je kan geen 3 containers op elkaar plaatsen");
-                this.container = null;
+        }
+
+
+        // Step 2: Rotate to align with destination axis
+        int targetDirection = verticalDestination ? 1 : 2; // 1=Up, 2=Right (adjust as needed)
+        if (direction != targetDirection && Grid.tryRotate(t, x, y, targetDirection)) {
+            rotate(targetDirection, t);
+            t++;
+        }
+
+        // Step 3: Move along new direction to destination
+        while ((verticalDestination && (y != desY) ) || (!verticalDestination && (x != desX) )) {
+            if (verticalDestination) {
+                int dy = (desY > y) ? 1 : -1;
+                if (Grid.tryOccupyRectAt(t, x, y + dy, direction)) {
+                    y += dy;
+                    logs.add(new moveLog(t, dy));
+                    t++;
+                } else {
+                    break;
+                }
+            } else {
+                int dx = (desX > x) ? 1 : -1;
+                if (Grid.tryOccupyRectAt(t, x + dx, y, direction)) {
+                    x += dx;
+                    logs.add(new moveLog(t, dx));
+                    t++;
+                } else {
+                    break;
+                }
             }
         }
-        public void dropOffInCrane(Crane crane){
 
-        this.container = null;
+        // Step 4: Final rotation if needed
+        if ((verticalDestination && direction != 1) || (!verticalDestination && direction != 2)) {
+            if (Grid.tryRotate(t, x, y, verticalDestination ? 1 : 2)) {
+                rotate(verticalDestination ? 1 : 2, t);
+                t++;
+            }
+        }
 
+        return t;
+    }
 
+    // Helper to check if rotation is allowed at current position
+    private boolean canRotateHere(int t) {
+        // Implement your rule, e.g. y >= Constants.loweststorageY
+        return Grid.tryRotate(t, x, y, direction % 2 == 0 ? 1 : 2);
+    }
+
+    public void dropOffInStorage(Storage storage){
+        if (this.container == null){
+            System.out.println("je kan geen container afzetten als je er geen hebt");
+        }
+        else{
+            if (Data.containersInField.get(storage.id*2) ==null){
+                Data.containersInField.set(storage.id*2, this.container);
+            }else if (Data.containersInField.get(storage.id*2 +1) ==null){
+                Data.containersInField.set(storage.id*2+1, this.container);
+            } else System.out.println("je kan geen 3 containers op elkaar plaatsen");
+            this.container = null;
         }
     }
+    public void dropOffInCrane(Crane crane){
+        this.container = null;
+    }
+}
 
 
 class Log {
