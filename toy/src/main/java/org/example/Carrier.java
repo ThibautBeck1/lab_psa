@@ -1,5 +1,7 @@
 package org.example;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /***
  * wanneer mogen roteren -> roteren mag pas vanaf we uit de rijen rijden
@@ -13,7 +15,7 @@ public class Carrier {
     public int id, craneID, x, y, width, height;
     Direction direction;
     public Container container;
-
+    public List<Log> logs ;
 
     public Carrier(int id, int craneID, int x, int y) {
         this.id = id;
@@ -22,8 +24,10 @@ public class Carrier {
         this.y = y;
         this.width = 4;
         this.height = 8;
-        this.direction = Direction.DOWN;
+        this.direction = Direction.down;
+        logs = new ArrayList<>();
     }
+
 
     public void pickupContainerFromStorage(int containerid) {
         if (this.container == null) {
@@ -50,10 +54,10 @@ public class Carrier {
 
     public boolean checkforEqualDirection(Direction direction) {
         return this.direction == direction ||
-                this.direction == Direction.UP && direction == Direction.DOWN ||
-                this.direction == Direction.DOWN && direction == Direction.UP ||
-                this.direction == Direction.LEFT && direction == Direction.RIGHT ||
-                this.direction == Direction.RIGHT && direction == Direction.LEFT;
+                this.direction == Direction.up && direction == Direction.down ||
+                this.direction == Direction.down && direction == Direction.up ||
+                this.direction == Direction.left && direction == Direction.right ||
+                this.direction == Direction.right && direction == Direction.left;
     }
 
     public void rotate(Direction direction, int time) {
@@ -61,7 +65,7 @@ public class Carrier {
             System.out.println("No need to turn , equal direction");
         }
         if (Constants.rules.canRotate(this.x, this.y, this.direction)) {
-            if (this.direction == Direction.UP || this.direction == Direction.DOWN) {
+            if (this.direction == Direction.up || this.direction == Direction.down) {
 
                 this.x -= 2;
                 this.y += 2;
@@ -70,63 +74,84 @@ public class Carrier {
                 this.y -= 2;
             }
             this.direction = direction;
-            Data.logs.add(new RotateLog(time, direction));
+            this.logs.add(new RotateLog(time, direction));
         }
 
     }
-    private void driveSideWays(int time, int newX) {
-        if (this.direction == Direction.UP || this.direction == Direction.DOWN) {
+    private int driveSideWays(int time, int newX) {
+        if (this.direction == Direction.up || this.direction == Direction.down) {
             System.out.println("you cannot drive sideways , direction = up/down");
-            return;
+            return -1;
         }
 
         // Map-bounds (laatste geldige x is mapWidth-1)
         if (newX < 0 || newX >= Data.mapWidth) {
             System.out.println("nieuwe X is buiten de map");
-            return;
+            return -1;
         }
 
         if (newX == this.x) {
             System.out.println("you already are at the final x dest");
-            return;
+            return -1;
         }
 
         int worldDx = newX - this.x;
 
         // Relatieve delta t.o.v. facing: positief = vooruit
-        int dx = (this.direction == Direction.LEFT) ? -worldDx : worldDx;
+        int dx = (this.direction == Direction.left) ? -worldDx : worldDx;
 
         // Update positie en log
         this.x = newX;
-        Data.logs.add(new MoveLog(time, dx));
+        this.logs.add(new MoveLog(time, dx));
+        return time + Math.abs(dx);
     }
-    private void driveVertical(int time, int newY) {
+    public int driveTO(int time , int newX , int newY , boolean destVertical) {
+        if (this.x == newX && this.y == newY) {
+            System.out.println("je moet nog implemnteren dat die naar dezelfde xof y kan");
+        }
+        else {
+            // dest vertical is in the storage section
+            if (destVertical){
+                time = driveSideWays(time, newX +2);
+                rotate(Direction.right, time++);
+                time = driveVertical(time, newY );
+
+            }
+            else {
+                time = driveVertical(time, newY -2 );
+                rotate(Direction.right, time++);
+                time = driveSideWays(time, newX );
+            }
+        }return  time ;
+    }
+    private int driveVertical(int time, int newY) {
         // Kan niet verticaal rijden als richting horizontaal is
-        if (this.direction == Direction.LEFT || this.direction == Direction.RIGHT) {
+        if (this.direction == Direction.left || this.direction == Direction.right) {
             System.out.println("you cannot drive vertically , direction = sideways");
-            return;
+            return -1;
         }
 
         // Controleer mapgrenzen (laatste geldige y is mapHeight-1)
         if (newY < 0 || newY >= Data.mapHeight) {
             System.out.println("nieuwe Y is buiten de map");
-            return;
+            return -1;
         }
 
         if (newY == this.y) {
             System.out.println("you already are at the final y dest");
-            return;
+            return -1;
         }
 
         // Absolute delta in wereldcoördinaten
         int worldDy = newY - this.y;
 
         // Relatieve delta t.o.v. facing: positief = vooruit
-        int dy = (this.direction == Direction.UP) ? -worldDy : worldDy;
+        int dy = (this.direction == Direction.up) ? -worldDy : worldDy;
 
         // Update positie en log
         this.y = newY;
-        Data.logs.add(new MoveLog(time, dy));
+        this.logs.add(new MoveLog(time, dy));
+        return time + Math.abs(dy);
     }
 
 

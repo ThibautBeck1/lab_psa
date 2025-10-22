@@ -7,6 +7,6 @@ abstract public class Log {
         this.timestamp = time;
     }
     public void printout(){
-        System.out.println(this.timestamp +" ");
+        System.out.print(this.timestamp +" ");
     }
 }

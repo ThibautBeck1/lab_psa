@@ -8,6 +8,7 @@ final public class UnLoadLog extends Log{
     }
     @Override
     public void printout() {
+        super.printout();
         System.out.println("unload");
     }
 }

@@ -6,6 +6,7 @@ final public class LoadLog extends Log{
     }
     @Override
     public void printout() {
+        super.printout();
         System.out.println("load");
     }
 }

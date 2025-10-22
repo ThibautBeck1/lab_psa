@@ -25,7 +25,7 @@ public class Rules {
     }
     public boolean canRotate(int x , int y , Direction direction){
         int xn ,yn;
-        if (direction == Direction.UP || direction == Direction.DOWN){
+        if (direction == Direction.up || direction == Direction.down){
              xn = x-2;
              yn = y;
         }else{

@@ -51,6 +51,7 @@ public class Main {
         for (Storage s: Data.storage) {
             System.out.println("storage " + s);
         }
+        int time = 0;
         for (Demand demand : Data.demands) {
             System.out.println("\nDemand for Crane " + demand.getCraneId());
             Crane crane = Data.cranes.get(demand.getCraneId());
@@ -69,17 +70,20 @@ public class Main {
 
                         DispatchSection d = crane.getDispatchSections(op.getDischargeId());
 
-                        //time = carrier.driveTo(d.getX() ,d.getY() ,time, false);
 
 
                         // drive to crane
+                        time = carrier.driveTO(time,d.getX() -2,d.getY() -1 ,false);
                         // pickup
+                        carrier.pickupContainerFromDispatch(d);
+                        time ++;
                         //carrier.pickupContainer(new Container(((UnloadOperation) op).getContainerId()));
                         // drive to storage
+                        time = carrier.driveTO(time ,storage.x +1 ,storage.y -2 ,true);
                        // time = carrier.driveTo(storage.x +1,storage.y -2 ,time , true);
 
                         // drop off
-                        //carrier.dropOffInStorage(storage);
+                        carrier.dropOffInStorage(storage);
 
                         // for later : make it go away to a safe location
 
@@ -99,6 +103,13 @@ public class Main {
 
                     }
                 }
+            }
+        }
+        System.out.println("----------LOGSSS------------");
+        for (Carrier carrier: Data.carriers) {
+            for (Log log : carrier.logs) {
+
+                log.printout();
             }
         }
     }

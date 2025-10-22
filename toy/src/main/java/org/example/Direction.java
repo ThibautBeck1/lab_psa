@@ -1,4 +1,4 @@
 package org.example;
 enum Direction{
-    UP ,DOWN, LEFT , RIGHT;
+    up, down, left, right;
 }
