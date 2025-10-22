@@ -126,6 +126,39 @@ public class Grid {
         return true;
     }
 
+    public static boolean tryRotate(int t, int x, int y, int dir){
+        System.out.println(Arrays.toString(staticBlocked));
+        if(dir%2==1){
+            x = x-2;
+        }
+        else{
+            y = y-2;
+        }
+        for(int i =x;i<x+8; i++){
+            for(int j = y; j<y+8; j++){
+                if(!pointFree(t, i, j) || !insideField(x, y)){
+                    return false;
+                }
+            }
+        }
+        return true;
+
+    }
+
+    public static boolean insideField(int x, int y){
+        if(x > Data.mapWidth || x < 0 || y > Data.mapHeight || y < 0){
+            return false;
+        }
+        return true;
+    }
+    public static boolean pointFree(int t, int x, int y){
+        int s = slot(t);
+        boolean isStatic = staticBlocked[x].get(y);
+        boolean isDyn    = occ[s][x].get(y);
+        return !(isStatic || isDyn);
+    }
+
+
     /** volledige slice t dynamisch leegmaken */
     public static void clearSlice(int t) {
         int s = slot(t);
@@ -175,6 +208,10 @@ public class Grid {
         clearSlice(now +1);
 
         printCombinedSlice(now +1+ hor);
+        System.out.println(tryRotate(0, 5, 65, 1));
+
+
+
 
 
 
