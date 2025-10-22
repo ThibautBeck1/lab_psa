@@ -146,7 +146,7 @@ public class Carrier {
         int worldDy = newY - this.y;
 
         // Relatieve delta t.o.v. facing: positief = vooruit
-        int dy = (this.direction == Direction.up) ? -worldDy : worldDy;
+        int dy = (this.direction == Direction.up) ? worldDy : -worldDy;
 
         // Update positie en log
         this.y = newY;

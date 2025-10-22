@@ -15,7 +15,7 @@ public final class Data {
     public static List<Container> containersInField = new ArrayList<>();
     public static List<Demand> demands = new ArrayList<>();
     public static int totalNewContainers;
-    public static List<Log> logs = new ArrayList<>();
+
     /** Handig als je opnieuw wilt parsen. */
     public static void reset() {
         mapWidth = 0; mapHeight = 0; totalNewContainers = 0;
