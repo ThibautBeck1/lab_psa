@@ -32,9 +32,10 @@ public class Main {
         System.out.println("Containerplaatsen " + Data.containersInField.size());
 
 
-        Grid.initstatic();
+
         System.out.println("------------------");
         Grid.demoInitRingAndSeed();
+
 
         // de carriers toevoegen aan hun crane
         for (Crane c: Data.cranes) {
@@ -92,9 +93,6 @@ public class Main {
                 }
             }
         }
-
-
-
     }
 }
 

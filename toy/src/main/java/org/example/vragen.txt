@@ -1,2 +1,9 @@
 klopt het dat je altijd over in elke richting over lege storage mag rijden
 begint de dataset met 0 of 1
+
+we hebben een idee voor een andere regel:
+Carriers mogen niet op de plaats waar containers staan staan -> Hierdoor kunnen we static gebruiken
+en dit is veel sneller en makkelijker omdat je niet moet updaten dat een container vanaf een bepaald tijdspunt weg is.
+Als je dat moet berekenen , dan zorgt dat ervoor dat je bvb op tijdstip 1 een container hebt in je lijst
+dan op tijdstip 2 gaat die weg , en dan moet je overal updaten dat die weg gaat zijn, maar als die dan zo later door een andere
+carrier op die plaats iets geplaatst wordt ofzo , dan wordt het heel verwarrend

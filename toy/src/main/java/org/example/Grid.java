@@ -5,39 +5,58 @@ import java.util.Arrays;
 
 public class Grid {
     // Permanent verboden cellen (cranes, storage, muren, …)
-    static BitSet[] staticBlocked = new BitSet[Data.mapWidth];
+
 
     static int HORIZON;
     static int T0;
     static BitSet[][] occ = null;
-
+    static BitSet[] staticBlocked = new BitSet[Data.mapWidth];
     /* ---------- STATIC (tijd-onafhankelijk) ---------- */
     public static void initstatic() {
         // Init alle kolommen
         for (int x = 0; x < Data.mapWidth; x++) {
-            staticBlocked[x] = new BitSet(Data.mapHeight);
-        }
-
-        // ---- Cranes blokkeren (jouw oorspronkelijke logica) ----
+            staticBlocked[x] = new BitSet(Data.mapHeight); }
+    // ---- Cranes blokkeren (jouw oorspronkelijke logica) ----
         for (Crane c : Data.cranes) {
             for (int i = c.bottomLeftX; i <= c.bottomLeftX + c.width; i++) {
-                staticBlocked[i].set(c.bottomLeftY);
-                staticBlocked[i].set(c.topRightY);
-            }
-        }
-
+                staticBlocked[i].set(c.bottomLeftY); staticBlocked[i].set(c.topRightY);
+            } }
         // ---- Storagezones blokkeren (volledige rechthoek) ----
         for (Storage s : Data.storage) {
             for (int w = 0; w < Constants.storageWidth; w++) {
                 staticBlocked[s.x + w].set(s.y, s.y + Constants.storageHeight);
-            }
-        }
+            } }
 
     }
 
+
     /* ---------- DYNAMIC (tijd = 3e dimensie via ringbuffer) ---------- */
+    public static void placeContainers(int t) {
+        int s = slot(t);
+        for (Container container: Data.containersInField){
+            if (container != null){
+            int w = Constants.storageWidth;
+            int h = Constants.storageHeight;
+            for (int dx = 0; dx < w; dx++) {
 
+                occ[s][container.getX() + dx].set(container.getY(), container.getY() +h);
+            }
+        }
+        }
+    }
 
+        public static void placeCrane(int t) {
+        int s = slot(t);
+
+        for (Crane c : Data.cranes) {
+            int w =  c.topRightX - c.bottomLeftX;
+            int H = c.topRightY - c.bottomLeftY;
+            for (int dx = 0; dx < w; dx++) {
+                occ[s][c.bottomLeftX + dx].set(c.topRightY);
+                occ[s][c.bottomLeftX + dx].set(c.topRightY + H);
+            }
+        }
+    }
     public static void initRingBuffer(int horizon, int startT) {
         HORIZON = horizon;
         T0 = startT;
@@ -57,38 +76,53 @@ public class Grid {
      * right/left (2,4) → horizontaal: 8 breed × 4 hoog
      */
     static int wOfDir(int dir) {
-        return (dir % 2 == 1) ? 4 : 8;
+        return (dir % 2 == 1) ? 3 : 8;
     }
     static int hOfDir(int dir) {
-        return (dir % 2 == 1) ? 8 : 4;
+        return (dir % 2 == 1) ? 8 : 3;
     }
-
-    /** check of rect (x..x+w-1, y..y+h-1) vrij is op tijd t */
-    public static boolean rectFreeAt(int t, int x, int y, int dir) {
+    public static boolean testForCarrier(int t, int x, int y, int dir) {
         final int w = wOfDir(dir), h = hOfDir(dir);
+        // bounds for full footprint (even though we only block edges)
         if (x < 0 || y < 0 || x + w > Data.mapWidth || y + h > Data.mapHeight) return false;
 
         int s = slot(t);
-        for (int dx = 0; dx < w; dx++) {
-            if (staticBlocked[x + dx].get(y, y + h).cardinality() > 0) return false;
-            if (occ[s][x + dx].get(y, y + h).cardinality() > 0) return false;
+
+        if (dir % 2 == 1) {
+            // VERTICAL (4×8): check ONLY left & right columns in [y .. y+h)
+                      // <- last column index
+            if (occ[s][x].get(y, y + h).cardinality() > 0) return false;
+            if (occ[s][x+w].get(y, y + h).cardinality() > 0) return false;
+        } else {
+            // HORIZONTAL (8×4): check ONLY bottom & top rows across [x .. x+w)
+                       // <- last row index
+            for (int dx = 0; dx < w; dx++) {
+                if (occ[s][x + dx].get(y)) return false;
+                if (occ[s][x + dx].get(y+3)) return false;
+            }
         }
         return true;
     }
 
     /** reserveer footprint (zonder check) */
-    public static void occupyRectAt(int t, int x, int y, int dir) {
+    public static void occupyCarrier(int t, int x, int y, int dir) {
+
         final int w = wOfDir(dir), h = hOfDir(dir);
         int s = slot(t);
-        for (int dx = 0; dx < w; dx++) {
-            occ[s][x + dx].set(y, y + h);
-        }
+        if (dir % 2 == 1 ) {
+            occ[s][x].set(y, y + h);
+            occ[s][x + w].set(y, y + h);
+        } else {
+            for (int dx = 0; dx < w; dx++){
+            occ[s][x + dx].set(y);
+            occ[s][x + dx].set(y+3);
+        }}
     }
 
     /** probeer te plaatsen, return false als niet past */
     public static boolean tryOccupyRectAt(int t, int x, int y, int dir) {
-        if (!rectFreeAt(t, x, y, dir)) return false;
-        occupyRectAt(t, x, y, dir);
+        if (!testForCarrier(t, x, y, dir)) return false;
+        occupyCarrier(t, x, y, dir);
         return true;
     }
 
@@ -98,6 +132,8 @@ public class Grid {
         for (int x = 0; x < Data.mapWidth; x++) {
             occ[s][x].clear();
         }
+        //placeCrane(t);
+        //placeContainers(t);
     }
 
     /** slice tFrom → tTo kopiëren (enkel dyn occ) */
@@ -121,20 +157,27 @@ public class Grid {
     /* ---------- Demo ---------- */
     public static void demoInitRingAndSeed() {
         int hor = 100;
-        initRingBuffer(hor, 0);
-        clearSlice(0);
+        int now= 0;
+        initstatic();
+        initRingBuffer(hor, now);
+        clearSlice(now);
 
         // Carrier richting voldoet aan gevraagd van Carrier.java
         int dir = 4; // 1 = up
-        int x = 4, y = 12;
+        Carrier carrier = Data.carriers.getFirst();
 
-        if (!tryOccupyRectAt(0, x, y, dir)) {
-            System.out.printf("⚠️  rect past niet op t=%d op (%d,%d) dir=%d%n", T0, x, y, dir);
+        if (!tryOccupyRectAt(now, carrier.x, carrier.y, carrier.direction)) {
+            System.out.printf("⚠️  rect past niet op t=%d op (%d,%d) dir=%d%n", now, carrier.x, carrier.y, carrier.direction);
         }
+        System.out.println("this is basicly with the carrier");
+        printCombinedSlice(now);
 
-        printCombinedSlice(0+hor);
-        clearSlice(0);
-        printCombinedSlice(0+hor);
+        clearSlice(now +1);
+
+        printCombinedSlice(now +1+ hor);
+
+
+
     }
     // --- VERVANG printSlice(...) door dit: ---
     /** Debug/visualisatie van één slice: COMBINED (static + dynamic) */
@@ -148,7 +191,7 @@ public class Grid {
                 boolean isDyn    = occ[s][x].get(y);
                 char ch = '.';
                 if (isStatic) ch = '#';       // statisch heeft voorrang in weergave
-                else if (isDyn) ch = 'X';     // dynamisch (alleen als niet statisch)
+                if (isDyn) ch = 'X';     // dynamisch (alleen als niet statisch)
                 row.append(ch);
             }
             System.out.println(row);
