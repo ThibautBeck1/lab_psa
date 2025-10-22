@@ -44,6 +44,7 @@ public class Carrier {
 
 
     public void rotate(int dir , int time) {
+        //TODO update this
         if (this.direction == dir) System.out.println(" je kan geen nul graden roteren");
         else if (this.direction % 2 == dir % 2)
             System.out.println("Dit kan niet , 180 graden omdraaien carrier kan niet");
@@ -71,19 +72,27 @@ public class Carrier {
             return t;
 
         }
-        public void dropOff(Storage storage){
+        public void dropOffInStorage(Storage storage){
+            if (this.container == null){
+                System.out.println("je kan geen container afzetten als je er geen hebt");
+            }
+            else{
+                if (Data.containersInField.get(storage.id*2) ==null){
+                    Data.containersInField.set(storage.id*2, this.container);
+                }else if (Data.containersInField.get(storage.id*2 +1) ==null){
+                    Data.containersInField.set(storage.id*2+1, this.container);
+                } else System.out.println("je kan geen 3 containers op elkaar plaatsen");
+                this.container = null;
+            }
+        }
+        public void dropOffInCrane(Crane crane){
+        this.container = null;
+
 
         }
+    }
 
 
-}
-
-enum Act {
-    MOVE , LOAD , UNLOAD ,FACE
-}
-enum Direction {
-    UP, DOWN, LEFT, RIGHT
-}
 class Log {
     public int timestamp;
     public Log(int time ) {

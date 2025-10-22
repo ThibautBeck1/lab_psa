@@ -74,7 +74,7 @@ public class Main {
                         t = carrier.driveTo(storage.x +2,storage.y -2 ,t , true);
 
                         // drop off
-                        carrier.dropOff(storage);
+                        carrier.dropOffInStorage(storage);
 
                         // for later : make it go away to a safe location
 
