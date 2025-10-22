@@ -5,7 +5,7 @@ import java.util.ArrayList;
  * Direction
  * direction up = 1, down = 3       -> oneven : omhoog/omlaag
  * direction Right = 2 , Left = 4   -> even   : rechts/links
- * beginnen met direction 1 -> Omhoog
+ * beginnen met direction 3 -> Omlaag
  *
  *
  * wanneer mogen roteren -> roteren mag pas vanaf we uit de rijen rijden
@@ -25,7 +25,7 @@ public class Carrier {
         this.y = y;
         this.width = 4;
         this.height = 8;
-        this.direction = 1;
+        this.direction = 3;
     }
     public void pickupContainer(Container container){
         if (this.container != null)System.out.println(this.id + "already has a container");
@@ -48,6 +48,9 @@ public class Carrier {
         if (this.direction == dir) System.out.println(" je kan geen nul graden roteren");
         else if (this.direction % 2 == dir % 2)
             System.out.println("Dit kan niet , 180 graden omdraaien carrier kan niet");
+        else if (Grid.tryRotate(time , x, y , direction)){
+            System.out.println("Hier roteren kan niet ");
+        }
         else if (this.direction % 2 == 0) { // rechts, links -> boven/beneden
             width = 4;
             height = 8;
@@ -55,7 +58,9 @@ public class Carrier {
             // doordat we verdraaien veranderd ons onderste punt ook
             this.x += 2;
             this.y -= 2;
+            Grid.tryOccupyRectAt(time , this.x, this.y,direction );
             logs.add(new RotateLog(time, dir));
+
 
         } else { // boven, beneden -> rechts links
             width = 8;
@@ -64,6 +69,7 @@ public class Carrier {
             // doordat we verdraaien veranderd ons onderste punt ook
             this.x -= 2;
             this.y += 2;
+            Grid.tryOccupyRectAt(time , this.x, this.y,direction );
             logs.add(new RotateLog(time, dir));
         }
     }
