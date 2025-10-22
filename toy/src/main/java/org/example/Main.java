@@ -8,11 +8,12 @@ public class Main {
 
     static void main() throws IOException {
         // Parse the input file
-        Data data;
+
         try (InputStream is = Main.class.getResourceAsStream("/toy2.txt");
              BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             ParseClass.Parse(br);
         }
+        Constants.rules = new Rules();
         ///  smart saving method for the containers = see parse class for explination
         System.out.println("------------------------");
         System.out.println("print out all the containers");
@@ -44,10 +45,8 @@ public class Main {
                     c.availableCarriers.add(ca);
             }
          }
-        int time = 0;
-        int hor = 100;
-        Grid.initstatic();
-        Grid.initRingBuffer(hor, time);
+
+
         // demands and solution
         for (Storage s: Data.storage) {
             System.out.println("storage " + s);
@@ -71,13 +70,7 @@ public class Main {
                         DispatchSection d = crane.getDispatchSections(op.getDischargeId());
 
                         //time = carrier.driveTo(d.getX() ,d.getY() ,time, false);
-                        Grid.tryOccupyRectAt(0,carrier.x,carrier.y-50,carrier.direction);
-                        carrier.y =  carrier.y -50;
-                        System.out.println(carrier.x+" carrier x en y" + carrier.y);
 
-                        carrier.rotate(2, 1);
-                        System.out.println(carrier.x+" carrier x en y" + carrier.y);
-                        Grid.printCombinedSlice(1);
 
                         // drive to crane
                         // pickup
@@ -102,7 +95,7 @@ public class Main {
                         // go in a list of availlable carriers
                         Carrier carrier = crane.availableCarriers.removeFirst();
                         DispatchSection d = crane.getDispatchSections(op.getDischargeId());
-
+                        crane.availableCarriers.add(carrier);
 
                     }
                 }
