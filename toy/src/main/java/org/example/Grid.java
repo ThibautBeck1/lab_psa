@@ -10,15 +10,15 @@ public class Grid {
     static int HORIZON;
     static int T0;
     static BitSet[][] occ = null;
-    static BitSet[] staticBlocked = new BitSet[Data.mapWidth];
+    static BitSet[] staticBlocked = new BitSet[Data.mapWidth+1];
     /* ---------- STATIC (tijd-onafhankelijk) ---------- */
     public static void initstatic() {
         // Init alle kolommen
-        for (int x = 0; x < Data.mapWidth; x++) {
+        for (int x = 0; x < Data.mapWidth+1; x++) {
             staticBlocked[x] = new BitSet(Data.mapHeight); }
     // ---- Cranes blokkeren (jouw oorspronkelijke logica) ----
         for (Crane c : Data.cranes) {
-            for (int i = c.bottomLeftX; i <= c.bottomLeftX + c.width; i++) {
+            for (int i = c.bottomLeftX; i <= c.topRightX; i++) {
                 staticBlocked[i].set(c.bottomLeftY); staticBlocked[i].set(c.topRightY);
             } }
         // ---- Storagezones blokkeren (volledige rechthoek) ----

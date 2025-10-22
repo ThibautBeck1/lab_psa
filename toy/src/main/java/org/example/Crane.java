@@ -3,15 +3,13 @@ package org.example;
 import java.util.ArrayList;
 
 public class Crane {
-    public int craneSectionID, width, height, topRightX,topRightY , bottomLeftX,bottomLeftY ,amount_of_dispatch_sections;
+    public int craneSectionID, topRightX,topRightY , bottomLeftX,bottomLeftY ,amount_of_dispatch_sections;
     private ArrayList<DispatchSection> dispatchSections;
     public ArrayList<Carrier> availableCarriers = new ArrayList<>();
     @Override
     public String toString() {
         return "Crane{" +
                 "craneSectionID=" + craneSectionID +
-                ", width=" + width +
-                ", height=" + height +
                 ", topRightX=" + topRightX +
                 ", topRightY=" + topRightY +
                 ", bottomLeftX=" + bottomLeftX +
@@ -22,8 +20,6 @@ public class Crane {
     }
 
     public Crane(int ID, int bottom_left_x , int bottom_left_y , int top_right_x , int top_right_y , int amount_of_dispatch_sections, ArrayList<DispatchSection> dispatchSections) {
-        width = 4; // this is the dispatch setion
-        height = 2;
         this.amount_of_dispatch_sections =  amount_of_dispatch_sections;
         this.dispatchSections = dispatchSections;
         this.craneSectionID = ID;

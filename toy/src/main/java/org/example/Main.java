@@ -48,7 +48,6 @@ public class Main {
         int hor = 100;
         Grid.initstatic();
         Grid.initRingBuffer(hor, time);
-
         // demands and solution
         for (Storage s: Data.storage) {
             System.out.println("storage " + s);
@@ -68,17 +67,26 @@ public class Main {
 
                         // take carrier out of list of availlable carriers for the crane
                         Carrier carrier = crane.availableCarriers.removeFirst();
+
                         DispatchSection d = crane.getDispatchSections(op.getDischargeId());
 
-                        time = carrier.driveTo(d.getX() ,d.getY() ,time, false);
+                        //time = carrier.driveTo(d.getX() ,d.getY() ,time, false);
+                        Grid.tryOccupyRectAt(0,carrier.x,carrier.y-50,carrier.direction);
+                        carrier.y =  carrier.y -50;
+                        System.out.println(carrier.x+" carrier x en y" + carrier.y);
+
+                        carrier.rotate(2, 1);
+                        System.out.println(carrier.x+" carrier x en y" + carrier.y);
+                        Grid.printCombinedSlice(1);
+
                         // drive to crane
                         // pickup
-                        carrier.pickupContainer(new Container(((UnloadOperation) op).getContainerId()));
+                        //carrier.pickupContainer(new Container(((UnloadOperation) op).getContainerId()));
                         // drive to storage
-                        time = carrier.driveTo(storage.x +1,storage.y -2 ,time , true);
+                       // time = carrier.driveTo(storage.x +1,storage.y -2 ,time , true);
 
                         // drop off
-                        carrier.dropOffInStorage(storage);
+                        //carrier.dropOffInStorage(storage);
 
                         // for later : make it go away to a safe location
 
@@ -92,6 +100,8 @@ public class Main {
                         // drive to crane
                         // drop off
                         // go in a list of availlable carriers
+                        Carrier carrier = crane.availableCarriers.removeFirst();
+                        DispatchSection d = crane.getDispatchSections(op.getDischargeId());
 
 
                     }

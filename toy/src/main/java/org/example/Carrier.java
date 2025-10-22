@@ -44,32 +44,35 @@ public class Carrier {
 
 
     public void rotate(int dir , int time) {
-        //TODO update this
+        System.out.println("trying to rotate");
         if (this.direction == dir) System.out.println(" je kan geen nul graden roteren");
         else if (this.direction % 2 == dir % 2)
             System.out.println("Dit kan niet , 180 graden omdraaien carrier kan niet");
-        else if (Grid.tryRotate(time , x, y , direction)){
+        else if (!Grid.tryRotate(time , x, y , direction)){
             System.out.println("Hier roteren kan niet ");
         }
         else if (this.direction % 2 == 0) { // rechts, links -> boven/beneden
+            System.out.println("rechts, links -> boven/beneden");
             width = 4;
             height = 8;
             this.direction = dir;
             // doordat we verdraaien veranderd ons onderste punt ook
             this.x += 2;
             this.y -= 2;
-            Grid.tryOccupyRectAt(time , this.x, this.y,direction );
+
+            Grid.occupyCarrier(time , this.x, this.y, direction);
             logs.add(new RotateLog(time, dir));
 
 
         } else { // boven, beneden -> rechts links
+            System.out.println("boven, beneden -> rechts links");
             width = 8;
             height = 4;
             this.direction = dir;
             // doordat we verdraaien veranderd ons onderste punt ook
             this.x -= 2;
             this.y += 2;
-            Grid.tryOccupyRectAt(time , this.x, this.y,direction );
+            Grid.occupyCarrier(time , this.x, this.y, direction);
             logs.add(new RotateLog(time, dir));
         }
     }
@@ -79,6 +82,7 @@ public class Carrier {
             Grid.printCombinedSlice(t);
             if (direction == 1 || direction == 3) { // Up/Down
                 int dy = (desY > y) ? 1 : -1;
+                if (desY ==y) dy = 0;
                 if (Grid.testForCarrier(t+1, x, y+dy, direction)) {
                     y += dy;
                     t++;
@@ -86,11 +90,12 @@ public class Carrier {
                     logs.add(new moveLog(t, dy));
 
                 } else {
-                    // Blocked, try alternative or break
+                    System.out.println("blocked");
                     t++;
                 }
             } else { // Right/Left
                 int dx = (desX > x) ? 1 : -1;
+                if(desX ==x) dx = 0;
                 if (Grid.testForCarrier(t+1, x+dx, y, direction)) {
                     x += dx;
                     t++;
@@ -98,6 +103,7 @@ public class Carrier {
                     logs.add(new moveLog(t, dx));
                 } else {
                     // Blocked, try alternative or break
+                    System.out.println("blocked");
                     t++;
                 }
             }
