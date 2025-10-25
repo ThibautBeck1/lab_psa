@@ -174,11 +174,18 @@ public class Main {
         Carrier c = Data.carriers.getFirst();
         c.driveTO(time, c.x -9, c.y, false);
         System.out.println("----------LOGSSS------------");
-        for (Carrier carrier: Data.carriers) {
-            for (Log log : carrier.logs) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"))) {
 
-                log.printout();
+            for (Carrier carrier : Data.carriers) {
+                for (Log log : carrier.logs) {
+                    writer.write(log.toString());  // schrijf de log
+                }
             }
+
+            System.out.println("Logs succesvol weggeschreven naar output.txt");
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -11,4 +11,8 @@ final public class MoveLog extends Log{
         super.printout();
         System.out.println("move " + this.units);
     }
+    @Override
+    public String toString(){
+        return super.toString() + "move " + this.units + "\n";
+    }
 }

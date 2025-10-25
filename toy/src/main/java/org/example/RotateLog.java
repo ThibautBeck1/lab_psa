@@ -11,4 +11,8 @@ final public class RotateLog extends Log{
         super.printout();
         System.out.println("face " + this.direction);
     }
+    @Override
+    public String toString(){
+        return super.toString() + "face " + this.direction + "\n";
+    }
 }

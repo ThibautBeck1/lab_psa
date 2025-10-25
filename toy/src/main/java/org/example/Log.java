@@ -9,4 +9,7 @@ abstract public class Log {
     public void printout(){
         System.out.print(this.timestamp +" ");
     }
+    public String toString(){
+        return this.timestamp + " ";
+    }
 }

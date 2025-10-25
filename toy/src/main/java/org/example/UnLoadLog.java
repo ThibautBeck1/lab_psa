@@ -11,4 +11,8 @@ final public class UnLoadLog extends Log{
         super.printout();
         System.out.println("unload");
     }
+    @Override
+    public String toString(){
+        return super.toString() + "unload\n";
+    }
 }

@@ -9,4 +9,8 @@ final public class LoadLog extends Log{
         super.printout();
         System.out.println("load");
     }
+    @Override
+    public String toString(){
+        return super.toString() + "load\n";
+    }
 }
