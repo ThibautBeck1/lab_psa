@@ -52,6 +52,7 @@ public class Main {
             System.out.println("storage " + s);
         }
         int time = 0;
+        boolean firstLaod = true;
         for (Demand demand : Data.demands) {
             System.out.println("\nDemand for Crane " + demand.getCraneId());
             Crane crane = Data.cranes.get(demand.getCraneId());
@@ -92,43 +93,73 @@ public class Main {
                         crane.availableCarriers.add(carrier);
 
                     } else if (op instanceof LoadOperation) {
-/*
-                        Container contaier = null;
-                        for (Container c : Data.containersInField) {
-                            if (c != null && c.id == ((LoadOperation) op).getContainerId()) {
-                                System.out.println("Container found in field: " + c);
-                                contaier = c;
+                    LoadOperation loadOp = (LoadOperation) op;
 
-                            }
+                    // Find the container
+                    Container container = null;
+                    for (Container c : Data.containersInField) {
+                        if (c != null && c.id == loadOp.getContainerId()) {
+                            container = c;
+                            System.out.println("Container found in field: " + c);
+                            break;
                         }
-                        Data.containersInField.remove(contaier);
-
-                        // take carrier out of list of available carriers for the crane
-                        Carrier carrier = crane.availableCarriers.removeFirst();
-
-                        DispatchSection d = crane.getDispatchSections(op.getDischargeId());
-
-                        // drive to storage (U-vorm if previous was unload)
-                        time = carrier.driveTO(time, contaier.getX()+ 1, contaier.getY() - 2, true);
-
-                        // pickup from storage
-                        carrier.pickupContainerFromStorage(((LoadOperation) op).getContainerId());
-                        carrier.logs.add(new LoadLog(time));
-                        time++;
-
-                        // drive to crane (dispatch section)
-                        time = carrier.driveTO(time, d.getX() - 2, d.getY() - 1, false);
-
-                        // drop off at dispatch
-                        carrier.setOffContainerAtDispatch(d);
-                        carrier.logs.add(new UnLoadLog(time));
-                        time++;
-
-                        // go in a list of available carriers
-                        crane.availableCarriers.add(carrier);
-
- */
                     }
+
+                    if (container == null) {
+                        System.out.println("Container not found!");
+                        continue;
+                    }
+
+                    // Get storage location BEFORE removing from field
+                    int targetX = container.getX();
+                    int targetY = container.getY();
+                    Storage storage = container.storage;
+
+                    // take carrier out of list of available carriers
+                    Carrier carrier = crane.availableCarriers.removeFirst();
+                    DispatchSection d = crane.getDispatchSections(op.getDischargeId());
+
+                    // Check if we need U-shape movement
+                    boolean needsUShape = false;
+                    if (previousOp instanceof UnloadOperation) {
+                        Storage prevStorage = Data.storage.get(((UnloadOperation) previousOp).getStorageId());
+                        // Check if storage is in different column
+                        if (prevStorage.x != storage.x) {
+                            needsUShape = true;
+                        }
+                    }
+
+                    if (needsUShape) {
+                        // U-shape: down -> sideways -> up
+                        time = carrier.driveVertical(time, Constants.lowestStorageY);
+                        carrier.rotate(Direction.right, time);
+                        time++;
+                        time = carrier.driveSideWays(time, targetX + 1);
+                        carrier.rotate(Direction.up, time);
+                        time++;
+                        time = carrier.driveVertical(time, targetY - 2);
+                    } else {
+                        // Same column or first load: use driveTO
+                        time = carrier.driveTO(time, targetX + 1, targetY - 2, true);
+                    }
+
+                    // pickup from storage
+                    carrier.pickupContainerFromStorage(loadOp.getContainerId());
+                    carrier.logs.add(new LoadLog(time));
+                    time++;
+
+                    // drive to crane (dispatch section)
+                    time = carrier.driveTO(time, d.getX() - 2, d.getY() - 1, false);
+
+                    // drop off at dispatch
+                    carrier.setOffContainerAtDispatch(d);
+
+                    carrier.logs.add(new UnLoadLog(time));
+                    time++;
+
+                    // go in a list of available carriers
+                    crane.availableCarriers.add(carrier);
+                }
 
                     previousOp = op;
 
@@ -140,6 +171,8 @@ public class Main {
 
 
         }
+        Carrier c = Data.carriers.getFirst();
+        c.driveTO(time, c.x -9, c.y, false);
         System.out.println("----------LOGSSS------------");
         for (Carrier carrier: Data.carriers) {
             for (Log log : carrier.logs) {

@@ -32,12 +32,19 @@ public class Carrier {
     public void pickupContainerFromStorage(int containerid) {
         if (this.container == null) {
             for (Container c : Data.containersInField) {
-                if (c.id == containerid) {
+                if (c != null && c.id == containerid) {  // ⚠️ Voeg c != null toe
                     this.container = c;
+                    break;  // Stop de loop als je de container gevonden hebt
                 }
             }
-            Data.containersInField.remove(this.container);
-        } else System.out.println("you already have a container");
+            if (this.container != null) {
+                Data.containersInField.remove(this.container);
+            } else {
+                System.out.println("Container " + containerid + " not found in field");
+            }
+        } else {
+            System.out.println("you already have a container");
+        }
     }
 
     public void pickupContainerFromDispatch(DispatchSection dispatchSection) {
@@ -51,6 +58,7 @@ public class Carrier {
 
     public void setOffContainerAtDispatch(DispatchSection dispatchSection) {
         dispatchSection.setContainer(this.container);
+        this.container = null;  // ⚠️ VOEG DIT TOE!
     }
 
     public boolean checkforEqualDirection(Direction direction) {
@@ -80,21 +88,21 @@ public class Carrier {
         }
 
     }
-    private int driveSideWays(int time, int newX) {
+    public int driveSideWays(int time, int newX) {
         if (this.direction == Direction.up || this.direction == Direction.down) {
             System.out.println("you cannot drive sideways , direction = up/down");
-            return -1;
+            return time;
         }
 
         // Map-bounds (laatste geldige x is mapWidth-1)
         if (newX < 0 || newX >= Data.mapWidth) {
             System.out.println("nieuwe X is buiten de map");
-            return -1;
+            return time;
         }
 
         if (newX == this.x) {
             System.out.println("you already are at the final x dest");
-            return -1;
+            return time;
         }
 
         int worldDx = newX - this.x;
@@ -115,38 +123,40 @@ public class Carrier {
         }
 
         if (destVertical) {
-            // Going to storage: horizontal → vertical rotation
-            // Rotation does: x += 2, y -= 2
             time = driveSideWays(time, newX - 2);
-            rotate(Direction.up, time);
-            time++;
+            if (!checkforEqualDirection(Direction.up)) {
+                rotate(Direction.up, time);
+                time++;
+            }
             time = driveVertical(time, newY);
         } else {
-            // Going to dispatch: vertical → horizontal rotation
-            // Rotation does: x -= 2, y += 2
             time = driveVertical(time, newY - 2);
-            rotate(Direction.right, time);
-            time++;
+            if (!checkforEqualDirection(Direction.right)) {
+                rotate(Direction.right, time);
+                time++;
+            }
             time = driveSideWays(time, newX);
         }
         return time;
     }
-    private int driveVertical(int time, int newY) {
+
+
+    public int driveVertical(int time, int newY) {
         // Kan niet verticaal rijden als richting horizontaal is
         if (this.direction == Direction.left || this.direction == Direction.right) {
             System.out.println("you cannot drive vertically , direction = sideways");
-            return -1;
+            return time;
         }
 
         // Controleer mapgrenzen (laatste geldige y is mapHeight-1)
         if (newY < 0 || newY >= Data.mapHeight) {
             System.out.println("nieuwe Y is buiten de map");
-            return -1;
+            return time;
         }
 
         if (newY == this.y) {
             System.out.println("you already are at the final y dest");
-            return -1;
+            return time;
         }
 
         // Absolute delta in wereldcoördinaten
