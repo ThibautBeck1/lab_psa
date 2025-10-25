@@ -43,6 +43,7 @@ public class Carrier {
     public void pickupContainerFromDispatch(DispatchSection dispatchSection) {
         if (this.container == null) {
             this.container = dispatchSection.getContainer();
+
         } else {
             System.out.println("you already have a container");
         }
@@ -75,6 +76,7 @@ public class Carrier {
             }
             this.direction = direction;
             this.logs.add(new RotateLog(time, direction));
+            new RotateLog(time, direction).printout();
         }
 
     }
@@ -103,26 +105,31 @@ public class Carrier {
         // Update positie en log
         this.x = newX;
         this.logs.add(new MoveLog(time, dx));
+        new MoveLog(time, dx).printout();
+
         return time + Math.abs(dx);
     }
-    public int driveTO(int time , int newX , int newY , boolean destVertical) {
+    public int driveTO(int time, int newX, int newY, boolean destVertical) {
         if (this.x == newX && this.y == newY) {
-            System.out.println("je moet nog implemnteren dat die naar dezelfde xof y kan");
+            return time;
         }
-        else {
-            // dest vertical is in the storage section
-            if (destVertical){
-                time = driveSideWays(time, newX +2);
-                rotate(Direction.right, time++);
-                time = driveVertical(time, newY );
 
-            }
-            else {
-                time = driveVertical(time, newY -2 );
-                rotate(Direction.right, time++);
-                time = driveSideWays(time, newX );
-            }
-        }return  time ;
+        if (destVertical) {
+            // Going to storage: horizontal → vertical rotation
+            // Rotation does: x += 2, y -= 2
+            time = driveSideWays(time, newX - 2);
+            rotate(Direction.up, time);
+            time++;
+            time = driveVertical(time, newY);
+        } else {
+            // Going to dispatch: vertical → horizontal rotation
+            // Rotation does: x -= 2, y += 2
+            time = driveVertical(time, newY - 2);
+            rotate(Direction.right, time);
+            time++;
+            time = driveSideWays(time, newX);
+        }
+        return time;
     }
     private int driveVertical(int time, int newY) {
         // Kan niet verticaal rijden als richting horizontaal is
@@ -151,6 +158,7 @@ public class Carrier {
         // Update positie en log
         this.y = newY;
         this.logs.add(new MoveLog(time, dy));
+        new MoveLog(time, dy).printout();
         return time + Math.abs(dy);
     }
 

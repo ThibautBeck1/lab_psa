@@ -9,6 +9,6 @@ final public class RotateLog extends Log{
     @Override
     public void printout() {
         super.printout();
-        System.out.println("rotate " + this.direction);
+        System.out.println("face " + this.direction);
     }
 }

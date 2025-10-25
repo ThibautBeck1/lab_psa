@@ -59,51 +59,86 @@ public class Main {
 
             for (Ship ship : demand.getShips()) {
                 System.out.println("  Ship " + ship.getId() + " operations:");
+                Operation previousOp = null;
+
                 for (Operation op : ship.getOperations()) {
                     System.out.println("    " + op);
-                    if (op instanceof UnloadOperation){
 
+                    if (op instanceof UnloadOperation) {
                         Storage storage = Data.storage.get(((UnloadOperation) op).getStorageId());
 
-                        // take carrier out of list of availlable carriers for the crane
+                        // take carrier out of list of available carriers for the crane
                         Carrier carrier = crane.availableCarriers.removeFirst();
 
                         DispatchSection d = crane.getDispatchSections(op.getDischargeId());
 
-
-
                         // drive to crane
-                        time = carrier.driveTO(time,d.getX() -2,d.getY() -1 ,false);
+                        time = carrier.driveTO(time, d.getX() - 2, d.getY() - 1, false);
+
                         // pickup
                         carrier.pickupContainerFromDispatch(d);
-                        time ++;
-                        //carrier.pickupContainer(new Container(((UnloadOperation) op).getContainerId()));
+                        carrier.logs.add(new LoadLog(time));
+                        time++;
+
                         // drive to storage
-                        time = carrier.driveTO(time ,storage.x +1 ,storage.y -2 ,true);
-                       // time = carrier.driveTo(storage.x +1,storage.y -2 ,time , true);
+                        time = carrier.driveTO(time, storage.x -1, storage.y - 2, true);
 
                         // drop off
                         carrier.dropOffInStorage(storage);
+                        carrier.logs.add(new UnLoadLog(time));
+                        time++;
 
-                        // for later : make it go away to a safe location
-
-                        // go in a list of availlable carriers
-                        // this list makes sure that you could always find the 'idle' carreir
+                        // go in a list of available carriers
                         crane.availableCarriers.add(carrier);
+
                     } else if (op instanceof LoadOperation) {
-                        // take carrier out of list of availlable carriers for the crane
-                        // drive to storage
-                        // pickup
-                        // drive to crane
-                        // drop off
-                        // go in a list of availlable carriers
+/*
+                        Container contaier = null;
+                        for (Container c : Data.containersInField) {
+                            if (c != null && c.id == ((LoadOperation) op).getContainerId()) {
+                                System.out.println("Container found in field: " + c);
+                                contaier = c;
+
+                            }
+                        }
+                        Data.containersInField.remove(contaier);
+
+                        // take carrier out of list of available carriers for the crane
                         Carrier carrier = crane.availableCarriers.removeFirst();
+
                         DispatchSection d = crane.getDispatchSections(op.getDischargeId());
+
+                        // drive to storage (U-vorm if previous was unload)
+                        time = carrier.driveTO(time, contaier.getX()+ 1, contaier.getY() - 2, true);
+
+                        // pickup from storage
+                        carrier.pickupContainerFromStorage(((LoadOperation) op).getContainerId());
+                        carrier.logs.add(new LoadLog(time));
+                        time++;
+
+                        // drive to crane (dispatch section)
+                        time = carrier.driveTO(time, d.getX() - 2, d.getY() - 1, false);
+
+                        // drop off at dispatch
+                        carrier.setOffContainerAtDispatch(d);
+                        carrier.logs.add(new UnLoadLog(time));
+                        time++;
+
+                        // go in a list of available carriers
                         crane.availableCarriers.add(carrier);
 
+ */
                     }
+
+                    previousOp = op;
+
+
                 }
+
+
             }
+
+
         }
         System.out.println("----------LOGSSS------------");
         for (Carrier carrier: Data.carriers) {
