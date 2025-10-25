@@ -140,7 +140,7 @@ public class Main {
                         time = carrier.driveVertical(time, targetY - 2);
                     } else {
                         // Same column or first load: use driveTO
-                        time = carrier.driveTO(time, targetX + 1, targetY - 2, true);
+                        time = carrier.driveTO(time, targetX -1, targetY - 2, true);
                     }
 
                     // pickup from storage
