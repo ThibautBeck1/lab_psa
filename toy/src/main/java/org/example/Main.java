@@ -9,7 +9,7 @@ public class Main {
     static void main() throws IOException {
         // Parse the input file
 
-        try (InputStream is = Main.class.getResourceAsStream("/toy2.txt");
+        try (InputStream is = Main.class.getResourceAsStream("/toy.txt");
              BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             ParseClass.Parse(br);
         }
