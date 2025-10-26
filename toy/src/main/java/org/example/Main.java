@@ -177,6 +177,7 @@ public class Main {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"))) {
 
             for (Carrier carrier : Data.carriers) {
+                writer.write("carrier " + carrier.id + "\n");
                 for (Log log : carrier.logs) {
                     writer.write(log.toString());  // schrijf de log
                 }
