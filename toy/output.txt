@@ -1,3 +1,4 @@
+carrier 0 logs:
 0 move 35
 35 face right
 36 move 26
@@ -57,6 +58,7 @@
 1930 move 11
 1941 unload
 4569 move -9
+carrier 1 logs:
 115 move 31
 146 face right
 147 move 8
@@ -115,6 +117,7 @@
 2019 face right
 2020 move 5
 2025 unload
+carrier 2 logs:
 2026 move 39
 2065 face right
 2066 move 28
@@ -177,6 +180,7 @@
 4312 face right
 4313 move 49
 4362 unload
+carrier 3 logs:
 2180 move 63
 2243 face right
 2244 move 49

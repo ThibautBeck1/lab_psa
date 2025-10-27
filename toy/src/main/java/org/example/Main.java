@@ -173,10 +173,12 @@ public class Main {
         }
         Carrier c = Data.carriers.getFirst();
         c.driveTO(time, c.x -9, c.y, false);
+
         System.out.println("----------LOGSSS------------");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"))) {
 
             for (Carrier carrier : Data.carriers) {
+                writer.write("carrier " + carrier.id + " logs:\n");
                 for (Log log : carrier.logs) {
                     writer.write(log.toString());  // schrijf de log
                 }
