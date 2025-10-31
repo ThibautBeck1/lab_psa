@@ -9,7 +9,7 @@ public class Main {
     static void main() throws IOException {
         // Parse the input file
 
-        try (InputStream is = Main.class.getResourceAsStream("/small_a_01.txt");
+        try (InputStream is = Main.class.getResourceAsStream("/toy.txt");
              BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             ParseClass.Parse(br);
         }
@@ -135,7 +135,7 @@ public class Main {
                         carrier.rotate(Direction.right, time);
                         time++;
                         time = carrier.driveSideWays(time, targetX + 1);
-                        carrier.rotate(Direction.up, time);
+                        carrier.rotate(Direction.down, time);
                         time++;
                         time = carrier.driveVertical(time, targetY - 2);
                     } else {
@@ -178,7 +178,7 @@ public class Main {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"))) {
 
             for (Carrier carrier : Data.carriers) {
-                writer.write("carrier " + carrier.id + " logs:\n");
+                writer.write("carrier " + carrier.id + "\n");
                 for (Log log : carrier.logs) {
                     writer.write(log.toString());  // schrijf de log
                 }

@@ -58,15 +58,11 @@ public class Carrier {
 
     public void setOffContainerAtDispatch(DispatchSection dispatchSection) {
         dispatchSection.setContainer(this.container);
-        this.container = null;  // ⚠️ VOEG DIT TOE!
+        this.container = null;
     }
 
     public boolean checkforEqualDirection(Direction direction) {
-        return this.direction == direction ||
-                this.direction == Direction.up && direction == Direction.down ||
-                this.direction == Direction.down && direction == Direction.up ||
-                this.direction == Direction.left && direction == Direction.right ||
-                this.direction == Direction.right && direction == Direction.left;
+        return this.direction == direction;
     }
 
     public void rotate(Direction direction, int time) {
@@ -74,7 +70,7 @@ public class Carrier {
             System.out.println("No need to turn , equal direction");
         }
         if (Constants.rules.canRotate(this.x, this.y, this.direction)) {
-            if (this.direction == Direction.up || this.direction == Direction.down) {
+            if (this.direction == Direction.down) {
 
                 this.x -= 2;
                 this.y += 2;
@@ -89,7 +85,7 @@ public class Carrier {
 
     }
     public int driveSideWays(int time, int newX) {
-        if (this.direction == Direction.up || this.direction == Direction.down) {
+        if ( this.direction == Direction.down) {
             System.out.println("you cannot drive sideways , direction = up/down");
             return time;
         }
@@ -108,7 +104,7 @@ public class Carrier {
         int worldDx = newX - this.x;
 
         // Relatieve delta t.o.v. facing: positief = vooruit
-        int dx = (this.direction == Direction.left) ? -worldDx : worldDx;
+        int dx = (this.direction == Direction.right) ? worldDx : -worldDx;
 
         // Update positie en log
         this.x = newX;
@@ -124,8 +120,8 @@ public class Carrier {
 
         if (destVertical) {
             time = driveSideWays(time, newX - 2);
-            if (!checkforEqualDirection(Direction.up)) {
-                rotate(Direction.up, time);
+            if (!checkforEqualDirection(Direction.down)) {
+                rotate(Direction.down, time);
                 time++;
             }
             time = driveVertical(time, newY);
@@ -143,7 +139,7 @@ public class Carrier {
 
     public int driveVertical(int time, int newY) {
         // Kan niet verticaal rijden als richting horizontaal is
-        if (this.direction == Direction.left || this.direction == Direction.right) {
+        if (this.direction == Direction.right) {
             System.out.println("you cannot drive vertically , direction = sideways");
             return time;
         }
@@ -162,8 +158,8 @@ public class Carrier {
         // Absolute delta in wereldcoördinaten
         int worldDy = newY - this.y;
 
-        // Relatieve delta t.o.v. facing: positief = vooruit
-        int dy = (this.direction == Direction.up) ? worldDy : -worldDy;
+
+        int dy = (this.direction == Direction.down) ? -worldDy : +worldDy;
 
         // Update positie en log
         this.y = newY;

@@ -1,242 +1,32 @@
-carrier 0 logs:
-0 move 35
-35 face right
-36 move 26
-62 load
-63 move -11
-74 face up
-75 move 39
-114 unload
-243 move -39
-282 face right
-283 move 11
-294 load
-295 move -32
-327 face up
-328 move 55
-383 unload
-540 move -55
-595 face right
-596 move 32
-628 load
-629 move -26
-655 face up
-656 move 35
-691 unload
-824 move 28
-852 load
-853 move -63
-916 face right
-917 move 26
-943 unload
-1096 load
-1097 move -32
-1129 face up
-1130 move 59
-1189 unload
-1282 move -59
-1341 face right
-1342 move 32
-1374 load
-1375 move -32
-1407 face up
-1408 move 35
-1443 unload
-1608 move -2
-1612 move 6
-1618 load
-1619 move -39
-1658 face right
-1659 move 32
-1691 unload
-1798 move -11
-1809 face up
-1810 move 59
-1869 load
-1870 move -59
-1929 face right
-1930 move 11
-1941 unload
-4569 move -9
-carrier 1 logs:
-115 move 31
-146 face right
-147 move 8
-155 load
-156 move -26
-182 face up
-183 move 59
-242 unload
-384 move -59
-443 face right
-444 move 26
-470 load
-471 move -8
-479 face up
-480 move 59
-539 unload
-692 move -26
-720 move 30
-750 load
-751 move -63
-814 face right
-815 move 8
-823 unload
-944 move -11
-955 face up
-956 move 63
-1019 load
-1020 move -63
-1083 face right
-1084 move 11
-1095 unload
-1190 load
-1191 move -26
-1217 face up
-1218 move 63
-1281 unload
-1444 move -63
-1507 face right
-1508 move 26
-1534 load
-1535 move -32
-1567 face up
-1568 move 39
-1607 unload
-1692 move 16
-1708 load
-1709 move -55
-1764 face right
-1765 move 32
-1797 unload
-1942 move -5
-1947 face up
-1948 move 35
-1983 load
-1984 move -35
-2019 face right
-2020 move 5
-2025 unload
-carrier 2 logs:
-2026 move 39
-2065 face right
-2066 move 28
-2094 load
-2095 move -28
-2123 face up
-2124 move 55
-2179 unload
-2411 move -55
-2466 face right
-2467 move 28
-2495 load
-2496 move -49
-2545 face up
-2546 move 55
-2601 unload
-2809 move -55
-2864 face right
-2865 move 49
-2914 load
-2915 move -49
-2964 face up
-2965 move 35
-3000 unload
-3098 move -35
-3133 face right
-3134 move 49
-3183 load
-3184 move -25
-3209 face up
-3210 move 59
-3269 unload
-3358 move -59
-3417 face right
-3418 move 25
-3443 load
-3444 move -49
-3493 face up
-3494 move 39
-3533 unload
-3624 move -8
-3632 load
-3633 move -31
-3664 face right
-3665 move 49
-3714 unload
-3845 move -28
-3873 face up
-3874 move 31
-3905 load
-3906 move -31
-3937 face right
-3938 move 28
-3966 unload
-4143 move -49
-4192 face up
-4193 move 59
-4252 load
-4253 move -59
-4312 face right
-4313 move 49
-4362 unload
-carrier 3 logs:
-2180 move 63
-2243 face right
-2244 move 49
-2293 load
-2294 move -52
-2346 face up
-2347 move 63
-2410 unload
-2602 move -63
-2665 face right
-2666 move 52
-2718 load
-2719 move -25
-2744 face up
-2745 move 63
-2808 unload
-3001 move -30
-3033 move 2
-3035 load
-3036 move -35
-3071 face right
-3072 move 25
-3097 unload
-3270 load
-3271 move -46
-3317 face up
-3318 move 39
-3357 unload
-3534 move -6
-3542 move -2
-3544 load
-3545 move -31
-3576 face right
-3577 move 46
-3623 unload
-3715 move -28
-3743 face up
-3744 move 35
-3779 load
-3780 move -35
-3815 face right
-3816 move 28
-3844 unload
-3967 move -31
-3998 face up
-3999 move 55
-4054 load
-4055 move -55
-4110 face right
-4111 move 31
-4142 unload
-4363 move -46
-4409 face up
-4410 move 55
-4465 load
-4466 move -55
-4521 face right
-4522 move 46
-4568 unload
+carrier 0
+0 move 18
+18 face right
+19 move 16
+35 load
+36 move -19
+55 face down
+56 move -22
+78 unload
+79 move 22
+101 face right
+102 move 19
+121 load
+122 move -19
+141 face down
+142 move -18
+160 unload
+161 move 4
+165 load
+166 move 14
+180 face right
+181 move 19
+200 unload
+201 move -16
+217 face down
+218 move -18
+236 load
+237 move 18
+255 face right
+256 move 16
+272 unload
+273 move -9
