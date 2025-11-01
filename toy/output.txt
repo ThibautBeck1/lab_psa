@@ -15,18 +15,21 @@ carrier 0
 141 face down
 142 move -18
 160 unload
-161 move 4
-165 load
-166 move 14
-180 face right
-181 move 19
-200 unload
-201 move -16
-217 face down
-218 move -18
-236 load
-237 move 18
-255 face right
-256 move 16
-272 unload
-273 move -9
+161 move -2
+163 move 4
+167 load
+168 move 14
+182 face right
+183 move 21
+204 unload
+205 move -16
+221 face down
+222 move -18
+240 load
+241 move 18
+259 face right
+260 move 16
+276 unload
+277 move 2
+279 face right
+280 move -7

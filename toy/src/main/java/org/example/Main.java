@@ -72,120 +72,121 @@ public class Main {
                     if (op instanceof UnloadOperation) {
                         Storage storage = Data.storage.get(((UnloadOperation) op).getStorageId());
 
-                        // take carrier out of list of available carriers for the crane
+                        // carrier nemen
                         Carrier carrier = crane.availableCarriers.removeFirst();
-
                         DispatchSection d = crane.getDispatchSections(op.getDischargeId());
 
-                        System.out.println("Path envelopes for carrier " + carrier.id + " driving to dispatch at (" + (d.getX() - 2) + "," + (d.getY() - 1) +" carrier xy " +carrier.x  + " y " + carrier.y+ "):");
-                        Deque<PathEnvelope> q = CalculatePath.calculatePathEnvelopes(carrier, d.getX() - 2, d.getY() - 1, false);
-                        // per tick één envelope verwerken (en eventueel time++)
-                        while (!q.isEmpty()) {
-                            PathEnvelope step = q.removeFirst();
-                            // hier kun je optioneel carrier state updaten of enkel tekenen/loggen
-                            System.out.println(step);
+                        // ===== 1) naar crane (dispatch) – precompute + ticks =====
+                        {
+                            int tx = d.getX() - 2;
+                            int ty = d.getY() - 1;
+                            System.out.println("Precompute path to dispatch (" + tx + "," + ty + ") from carrier "
+                                    + carrier.id + " at (" + carrier.x + "," + carrier.y + ")");
+                            Deque<PathEnvelope> q = CalculatePath.calculatePathEnvelopes(carrier, tx, ty, false);
+                            carrier.plan(q);
+                            while (carrier.tick(time)) {
+                                time++;
+                            }
+                            carrier.flushPendingMoves(time); // sluit move-segment af vóór pickup
                         }
-                        // drive to crane
-                        time = carrier.driveTO(time, d.getX() - 2, d.getY() - 1, false);
 
-
-                        // pickup
+                        // ===== pickup =====
                         carrier.pickupContainerFromDispatch(d);
                         carrier.logs.add(new LoadLog(time));
                         time++;
 
-                        // drive to storage
-                        time = carrier.driveTO(time, storage.x -1, storage.y - 2, true);
+                        // ===== 2) naar storage – precompute + ticks =====
+                        {
+                            int tx = storage.x - 1;
+                            int ty = storage.y - 2;
+                            Deque<PathEnvelope> q = CalculatePath.calculatePathEnvelopes(carrier, tx, ty, true);
+                            carrier.plan(q);
+                            while (carrier.tick(time)) {
+                                time++;
+                            }
+                            carrier.flushPendingMoves(time); // sluit move-segment af vóór drop
+                        }
 
-                        // drop off
+                        // ===== drop off =====
                         carrier.dropOffInStorage(storage);
                         carrier.logs.add(new UnLoadLog(time));
                         time++;
 
-                        // go in a list of available carriers
+                        // terug in pool
                         crane.availableCarriers.add(carrier);
 
                     } else if (op instanceof LoadOperation) {
-                    LoadOperation loadOp = (LoadOperation) op;
+                        LoadOperation loadOp = (LoadOperation) op;
 
-                    // Find the container
-                    Container container = null;
-                    for (Container c : Data.containersInField) {
-                        if (c != null && c.id == loadOp.getContainerId()) {
-                            container = c;
-                            System.out.println("Container found in field: " + c);
-                            break;
+                        // container zoeken
+                        Container container = null;
+                        for (Container c : Data.containersInField) {
+                            if (c != null && c.id == loadOp.getContainerId()) {
+                                container = c;
+                                System.out.println("Container found in field: " + c);
+                                break;
+                            }
                         }
-                    }
-
-                    if (container == null) {
-                        System.out.println("Container not found!");
-                        continue;
-                    }
-
-                    // Get storage location BEFORE removing from field
-                    int targetX = container.getX();
-                    int targetY = container.getY();
-                    Storage storage = container.storage;
-
-                    // take carrier out of list of available carriers
-                    Carrier carrier = crane.availableCarriers.removeFirst();
-                    DispatchSection d = crane.getDispatchSections(op.getDischargeId());
-
-                    // Check if we need U-shape movement
-                    boolean needsUShape = false;
-                    if (previousOp instanceof UnloadOperation) {
-                        Storage prevStorage = Data.storage.get(((UnloadOperation) previousOp).getStorageId());
-                        // Check if storage is in different column
-                        if (prevStorage.x != storage.x) {
-                            needsUShape = true;
+                        if (container == null) {
+                            System.out.println("Container not found!");
+                            continue;
                         }
-                    }
 
-                    if (needsUShape) {
-                        // U-shape: down -> sideways -> up
-                        time = carrier.driveVertical(time, Constants.lowestStorageY);
-                        carrier.rotate(Direction.right, time);
+                        int targetX = container.getX();
+                        int targetY = container.getY();
+                        Storage storage = container.storage;
+
+                        // carrier nemen
+                        Carrier carrier = crane.availableCarriers.removeFirst();
+                        DispatchSection d = crane.getDispatchSections(op.getDischargeId());
+
+                        // Check if we need U-shape movement
+                        boolean needsUShape = false;
+
+                        // ===== Same column or first load: één pad =====
+                        Deque<PathEnvelope> q = CalculatePath.calculatePathEnvelopes(carrier, targetX - 1, targetY - 2, true);
+                        carrier.plan(q);
+                        while (carrier.tick(time)) {
+                            time++;
+                        }
+                        carrier.flushPendingMoves(time);
+
+
+                        // pickup from storage
+                        carrier.pickupContainerFromStorage(loadOp.getContainerId());
+                        carrier.logs.add(new LoadLog(time));
                         time++;
-                        time = carrier.driveSideWays(time, targetX + 1);
-                        carrier.rotate(Direction.down, time);
+
+                        // terug naar crane (dispatch)
+
+                        int tx = d.getX() - 2;
+                        int ty = d.getY() - 1;
+                        q = CalculatePath.calculatePathEnvelopes(carrier, tx, ty, false);
+                        carrier.plan(q);
+                        while (carrier.tick(time)) {
+                            time++;
+                        }
+                        carrier.flushPendingMoves(time);
+
+
+                        // drop at dispatch
+                        carrier.setOffContainerAtDispatch(d);
+                        carrier.logs.add(new UnLoadLog(time));
                         time++;
-                        time = carrier.driveVertical(time, targetY - 2);
-                    } else {
-                        // Same column or first load: use driveTO
-                        time = carrier.driveTO(time, targetX -1, targetY - 2, true);
+
+                        // terug in pool
+                        crane.availableCarriers.add(carrier);
                     }
-
-                    // pickup from storage
-                    carrier.pickupContainerFromStorage(loadOp.getContainerId());
-                    carrier.logs.add(new LoadLog(time));
-                    time++;
-
-                    // drive to crane (dispatch section)
-                    time = carrier.driveTO(time, d.getX() - 2, d.getY() - 1, false);
-
-                    // drop off at dispatch
-                    carrier.setOffContainerAtDispatch(d);
-
-                    carrier.logs.add(new UnLoadLog(time));
-                    time++;
-
-                    // go in a list of available carriers
-                    crane.availableCarriers.add(carrier);
                 }
-
-                    previousOp = op;
-
-
-                }
-
-
             }
-
-
         }
+
         Carrier c = Data.carriers.getFirst();
-        c.driveTO(time, c.x -9, c.y, false);
+        Deque<PathEnvelope> q = CalculatePath.calculatePathEnvelopes(c, c.x -9, c.y, false);
+        c.plan(q);
+        while (c.tick(time)) { time++; }
+        c.flushPendingMoves(time);
+
 
         System.out.println("----------LOGSSS------------");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"))) {

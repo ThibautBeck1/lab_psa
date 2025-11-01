@@ -3,6 +3,9 @@ package org.example;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 /***
  * wanneer mogen roteren -> roteren mag pas vanaf we uit de rijen rijden
  * dus kijken naar laagst mogelijke beginblok van de storagesection
@@ -15,7 +18,7 @@ public class Carrier {
     public int id, craneID, x, y, width, height;
     Direction direction;
     public Container container;
-    public List<Log> logs ;
+    public List<Log> logs;
 
     public Carrier(int id, int craneID, int x, int y) {
         this.id = id;
@@ -60,117 +63,6 @@ public class Carrier {
         dispatchSection.setContainer(this.container);
         this.container = null;
     }
-
-    public boolean checkforEqualDirection(Direction direction) {
-        return this.direction == direction;
-    }
-
-    public void rotate(Direction direction, int time) {
-        if (checkforEqualDirection(direction)) {
-            System.out.println("No need to turn , equal direction");
-        }
-        if (Constants.rules.canRotate(this.x, this.y, this.direction)) {
-            if (this.direction == Direction.down) {
-
-                this.x -= 2;
-                this.y += 2;
-            } else {
-                this.x += 2;
-                this.y -= 2;
-            }
-            this.direction = direction;
-            this.logs.add(new RotateLog(time, direction));
-            new RotateLog(time, direction).printout();
-        }
-
-    }
-    public int driveSideWays(int time, int newX) {
-        if ( this.direction == Direction.down) {
-            System.out.println("you cannot drive sideways , direction = up/down");
-            return time;
-        }
-
-        // Map-bounds (laatste geldige x is mapWidth-1)
-        if (newX < 0 || newX >= Data.mapWidth) {
-            System.out.println("nieuwe X is buiten de map");
-            return time;
-        }
-
-        if (newX == this.x) {
-            System.out.println("you already are at the final x dest");
-            return time;
-        }
-
-        int worldDx = newX - this.x;
-
-        // Relatieve delta t.o.v. facing: positief = vooruit
-        int dx = (this.direction == Direction.right) ? worldDx : -worldDx;
-
-        // Update positie en log
-        this.x = newX;
-        this.logs.add(new MoveLog(time, dx));
-        new MoveLog(time, dx).printout();
-
-        return time + Math.abs(dx);
-    }
-    public int driveTO(int time, int newX, int newY, boolean destVertical) {
-        if (this.x == newX && this.y == newY) {
-            return time;
-        }
-
-        if (destVertical) {
-            time = driveSideWays(time, newX - 2);
-            if (!checkforEqualDirection(Direction.down)) {
-                rotate(Direction.down, time);
-                time++;
-            }
-            time = driveVertical(time, newY);
-        } else {
-            time = driveVertical(time, newY - 2);
-            if (!checkforEqualDirection(Direction.right)) {
-                rotate(Direction.right, time);
-                time++;
-            }
-            time = driveSideWays(time, newX);
-        }
-        return time;
-    }
-
-
-    public int driveVertical(int time, int newY) {
-        // Kan niet verticaal rijden als richting horizontaal is
-        if (this.direction == Direction.right) {
-            System.out.println("you cannot drive vertically , direction = sideways");
-            return time;
-        }
-
-        // Controleer mapgrenzen (laatste geldige y is mapHeight-1)
-        if (newY < 0 || newY >= Data.mapHeight) {
-            System.out.println("nieuwe Y is buiten de map");
-            return time;
-        }
-
-        if (newY == this.y) {
-            System.out.println("you already are at the final y dest");
-            return time;
-        }
-
-        // Absolute delta in wereldcoördinaten
-        int worldDy = newY - this.y;
-
-
-        int dy = (this.direction == Direction.down) ? -worldDy : +worldDy;
-
-        // Update positie en log
-        this.y = newY;
-        this.logs.add(new MoveLog(time, dy));
-        new MoveLog(time, dy).printout();
-        return time + Math.abs(dy);
-    }
-
-
-
-
     public void dropOffInStorage(Storage storage) {
         if (this.container == null) {
             System.out.println("you dont have a container");
@@ -186,11 +78,85 @@ public class Carrier {
         } else if (Data.containersInField.get(storage.id * 2 + 1) == null) {
             Data.containersInField.set(storage.id * 2 + 1, this.container);
 
-        } else {System.out.println("no available storage"); return;}
+        } else {
+            System.out.println("no available storage");
+            return;
+        }
         this.container = null;
 
     }
 
+    // in de class Carrier (extra velden)
+    private final Deque<PathEnvelope> planned = new ArrayDeque<>();
+
+    // aggregatie van moves (1 log per segment)
+    private Direction pendingDir = null;
+    private int pendingCount = 0;
+    private int pendingStartTime = 0;
+
+    // helper om een extern berekend pad te plannen
+    public void plan(Deque<PathEnvelope> q) {
+        planned.addAll(q);
+    }
+
+    // flush de geaccumuleerde move als 1 MoveLog
+    public void flushPendingMoves(int time) {
+        if (pendingCount != 0) {
+            logs.add(new MoveLog(pendingStartTime, pendingCount)); // keep sign
+            pendingCount = 0;
+            pendingDir = null;
+        }
+    }
+
+    public boolean tick(int time) {
+        if (planned.isEmpty()) return false;
+
+        PathEnvelope step = planned.removeFirst();
+
+        // delta of this single step
+        int dx = step.getOnderHoek().x - this.x;
+        int dy = step.getOnderHoek().y - this.y;
+
+        // rotation frame? (direction changes without a single-grid move)
+        boolean directionChanged = (this.direction != step.getDirection());
+        boolean notSingleMove = (Math.abs(dx) + Math.abs(dy) != 1);
+        if (directionChanged && notSingleMove) {
+            flushPendingMoves(time);
+            this.x = step.getOnderHoek().x;
+            this.y = step.getOnderHoek().y;
+            this.direction = step.getDirection();
+            logs.add(new RotateLog(time, this.direction));
+            return true;
+        }
+
+        // signed step in the RIGHT/DOWN frame:
+        // RIGHT axis:  dx>0 => +1 (right), dx<0 => -1 (left)
+        // DOWN axis:   y smaller is "down", so dy<0 => +1 (down), dy>0 => -1 (up)
+        int signedStep;
+        if (step.getDirection() == Direction.right) {
+            signedStep = (dx > 0) ? +1 : -1;
+        } else { // Direction.down
+            signedStep = (dy < 0) ? +1 : -1;
+        }
+
+        // aggregate by logical axis; sign encodes left/up vs right/down
+        if (pendingDir == null) {
+            pendingDir = step.getDirection();
+            pendingStartTime = time;
+            pendingCount = signedStep;       // ⬅ use signed value, not 1
+        } else if (pendingDir == step.getDirection()) {
+            pendingCount += signedStep;      // ⬅ add signed step
+        } else {
+            flushPendingMoves(time);
+            pendingDir = step.getDirection();
+            pendingStartTime = time;
+            pendingCount = signedStep;       // ⬅ use signed value
+        }
+
+        // advance pose
+        this.x = step.getOnderHoek().x;
+        this.y = step.getOnderHoek().y;
+        this.direction = step.getDirection();
+        return true;
+    }
 }
-
-
