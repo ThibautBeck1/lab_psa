@@ -1,5 +1,5 @@
 package org.example;
 // this makes everything neater and easier to rea
-enum Direction{
+public enum Direction{
     down, right;
 }
