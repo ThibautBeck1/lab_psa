@@ -2,6 +2,7 @@ package org.example;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Deque;
 
 
 public class Main {
@@ -9,7 +10,7 @@ public class Main {
     static void main() throws IOException {
         // Parse the input file
 
-        try (InputStream is = Main.class.getResourceAsStream("/toy2.txt");
+        try (InputStream is = Main.class.getResourceAsStream("/toy.txt");
              BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             ParseClass.Parse(br);
         }
@@ -41,10 +42,13 @@ public class Main {
         // de carriers toevoegen aan hun crane
         for (Crane c: Data.cranes) {
             for (Carrier ca : Data.carriers) {
-                if (ca != null && ca.craneID == c.craneSectionID)
+                if (ca != null && ca.craneID == c.craneSectionID) {
+
                     c.availableCarriers.add(ca);
+                }
             }
          }
+
 
 
         // demands and solution
@@ -73,8 +77,17 @@ public class Main {
 
                         DispatchSection d = crane.getDispatchSections(op.getDischargeId());
 
+                        System.out.println("Path envelopes for carrier " + carrier.id + " driving to dispatch at (" + (d.getX() - 2) + "," + (d.getY() - 1) +" carrier xy " +carrier.x  + " y " + carrier.y+ "):");
+                        Deque<PathEnvelope> q = CalculatePath.calculatePathEnvelopes(carrier, d.getX() - 2, d.getY() - 1, false);
+                        // per tick één envelope verwerken (en eventueel time++)
+                        while (!q.isEmpty()) {
+                            PathEnvelope step = q.removeFirst();
+                            // hier kun je optioneel carrier state updaten of enkel tekenen/loggen
+                            System.out.println(step);
+                        }
                         // drive to crane
                         time = carrier.driveTO(time, d.getX() - 2, d.getY() - 1, false);
+
 
                         // pickup
                         carrier.pickupContainerFromDispatch(d);
@@ -135,7 +148,7 @@ public class Main {
                         carrier.rotate(Direction.right, time);
                         time++;
                         time = carrier.driveSideWays(time, targetX + 1);
-                        carrier.rotate(Direction.up, time);
+                        carrier.rotate(Direction.down, time);
                         time++;
                         time = carrier.driveVertical(time, targetY - 2);
                     } else {
@@ -173,6 +186,7 @@ public class Main {
         }
         Carrier c = Data.carriers.getFirst();
         c.driveTO(time, c.x -9, c.y, false);
+
         System.out.println("----------LOGSSS------------");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"))) {
 

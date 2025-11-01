@@ -1,0 +1,32 @@
+carrier 0
+0 move 18
+18 face right
+19 move 16
+35 load
+36 move -19
+55 face down
+56 move -22
+78 unload
+79 move 22
+101 face right
+102 move 19
+121 load
+122 move -19
+141 face down
+142 move -18
+160 unload
+161 move 4
+165 load
+166 move 14
+180 face right
+181 move 19
+200 unload
+201 move -16
+217 face down
+218 move -18
+236 load
+237 move 18
+255 face right
+256 move 16
+272 unload
+273 move -9

@@ -1,4 +1,5 @@
 package org.example;
-enum Direction{
-    up, down, left, right;
+// this makes everything neater and easier to rea
+public enum Direction{
+    down, right;
 }
